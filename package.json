@@ -1,0 +1,30 @@
+{
+  "name": "rapor-mengaji-sd-anak-saleh",
+  "version": "1.0.0",
+  "description": "Homepage aplikasi pengelolaan nilai Rapor Mengaji SD Anak Saleh.",
+  "private": true,
+  "scripts": {
+    "dev": "node server.js",
+    "build:css": "tailwindcss -i ./src/input.css -o ./public/assets/css/styles.css --minify",
+    "watch:css": "tailwindcss -i ./src/input.css -o ./public/assets/css/styles.css --watch",
+    "pocketbase": "database/pocketbase serve --dir database/pb_data --http=127.0.0.1:8090",
+    "setup:google-oauth": "node scripts/configure-pocketbase-google.js",
+    "setup:user-access": "node scripts/configure-pocketbase-user-access.js",
+    "setup:user-role": "node scripts/add-users-role-field.js",
+    "setup:materi": "node scripts/setup-materi-collection.js",
+    "setup:siswa": "node scripts/setup-siswa-collection.js",
+    "setup:bilqolam": "node scripts/setup-bilqolam-collection.js",
+    "setup:nilai-doa": "node scripts/setup-nilai-doa-collection.js",
+    "setup:nilai-tathbiq": "node scripts/setup-nilai-tathbiq-collection.js",
+    "setup:nilai-tahfizh": "node scripts/setup-nilai-tahfizh-collection.js"
+  },
+  "dependencies": {
+    "animejs": "^3.2.2",
+    "express": "^4.19.2",
+    "pocketbase": "^0.26.9",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

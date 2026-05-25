@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Homepage aplikasi pengelolaan nilai Rapor Mengaji SD Anak Saleh."
+    />
+    <title>Rapor Mengaji SD Anak Saleh</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  </head>
+  <body class="min-h-screen overflow-x-hidden">
+    <main class="relative min-h-screen islamic-grid">
+      <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_16%_12%,rgba(201,154,63,0.28),transparent_27%),radial-gradient(circle_at_88%_18%,rgba(15,118,110,0.18),transparent_30%),linear-gradient(135deg,#fffaf0_0%,#f7f2e8_48%,#e7f4ef_100%)]"></div>
+
+      <nav class="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
+        <a href="/" class="flex items-center gap-3" aria-label="Rapor Mengaji SD Anak Saleh">
+          <span class="grid h-11 w-11 place-items-center rounded-[8px] bg-emeraldDeep text-white shadow-soft">
+            <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+              <path d="M12 3.25 14.18 9l6.07.35-4.7 3.88 1.54 5.9L12 15.8l-5.09 3.33 1.54-5.9-4.7-3.88L9.82 9 12 3.25Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span>
+            <span class="block font-display text-base font-extrabold leading-5 text-emeraldDeep">Rapor Mengaji</span>
+            <span class="block text-xs font-semibold uppercase tracking-[0.24em] text-dateGold">SD Anak Saleh</span>
+          </span>
+        </a>
+
+        <div class="hidden items-center gap-8 text-sm font-semibold text-ink/70 md:flex">
+          <a class="transition hover:text-jade" href="#fitur">Fitur</a>
+          <a class="transition hover:text-jade" href="#alur">Alur</a>
+          <a class="transition hover:text-jade" href="#dashboard">Dashboard</a>
+        </div>
+
+        <a class="btn-primary" href="/login" aria-label="Masuk ke halaman login">
+          Login
+          <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </a>
+      </nav>
+
+      <section class="mx-auto grid min-h-[calc(100vh-84px)] w-full max-w-7xl items-center gap-10 px-5 pb-14 pt-6 sm:px-8 lg:grid-cols-[1.02fr_0.98fr] lg:pb-20">
+        <div class="max-w-3xl">
+          <div class="hero-kicker inline-flex items-center gap-2 rounded-full border border-dateGold/25 bg-white/70 px-4 py-2 text-sm font-bold text-emeraldDeep shadow-sm backdrop-blur">
+            <span class="h-2 w-2 rounded-full bg-dateGold"></span>
+            Sistem akademik mengaji terpadu
+          </div>
+          <h1 class="hero-title mt-6 font-display text-4xl font-extrabold leading-[1.06] text-ink sm:text-6xl lg:text-7xl">
+            Rapor Mengaji SD Anak Saleh
+          </h1>
+          <p class="hero-copy mt-6 max-w-2xl text-base leading-8 text-ink/70 sm:text-lg">
+            Kelola capaian tilawah, hafalan, adab, kehadiran, dan catatan perkembangan santri dalam satu ruang kerja yang tenang, cepat, dan siap dipakai guru.
+          </p>
+
+          <div class="hero-actions mt-8 flex flex-col gap-3 sm:flex-row">
+            <a class="btn-primary" href="/login">
+              Mulai Kelola Nilai
+              <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </a>
+            <a class="btn-secondary" href="#fitur">Lihat Fitur</a>
+          </div>
+
+          <div class="hero-stats mt-10 grid max-w-xl grid-cols-3 gap-3">
+            <div class="metric-card">
+              <p class="text-2xl font-extrabold text-emeraldDeep">12</p>
+              <p class="mt-1 text-xs font-semibold text-ink/55">Kelas</p>
+            </div>
+            <div class="metric-card">
+              <p class="text-2xl font-extrabold text-emeraldDeep">8</p>
+              <p class="mt-1 text-xs font-semibold text-ink/55">Aspek Nilai</p>
+            </div>
+            <div class="metric-card">
+              <p class="text-2xl font-extrabold text-emeraldDeep">1</p>
+              <p class="mt-1 text-xs font-semibold text-ink/55">Rapor Utuh</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="dashboard" class="hero-visual relative min-h-[560px] lg:min-h-[640px]">
+          <div class="absolute left-1/2 top-1/2 h-[min(88vw,590px)] w-[min(88vw,590px)] -translate-x-1/2 -translate-y-1/2 geometric-mask bg-gradient-to-br from-dateGold/24 via-white/52 to-jade/24"></div>
+
+          <div class="dashboard-card glass-panel absolute left-0 top-6 w-[88%] max-w-[500px] rounded-[8px] p-5 sm:p-6 lg:left-6">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-[0.24em] text-dateGold">Semester Genap</p>
+                <h2 class="mt-2 font-display text-2xl font-extrabold text-emeraldDeep">Ringkasan Kelas 4A</h2>
+              </div>
+              <div class="grid h-12 w-12 place-items-center rounded-[8px] bg-emeraldDeep text-white">
+                <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 19.5V5.8A2.8 2.8 0 0 1 6.8 3H20v14H6.8A2.8 2.8 0 0 0 4 19.8m0-.3A2.5 2.5 0 0 0 6.5 22H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="mt-6 grid grid-cols-2 gap-3">
+              <div class="rounded-[8px] bg-emeraldDeep p-4 text-white">
+                <p class="text-xs font-semibold text-white/65">Rata-rata Tilawah</p>
+                <p class="mt-3 text-4xl font-extrabold">87</p>
+              </div>
+              <div class="rounded-[8px] border border-emeraldDeep/10 bg-white/80 p-4">
+                <p class="text-xs font-semibold text-ink/55">Target Hafalan</p>
+                <p class="mt-3 text-4xl font-extrabold text-emeraldDeep">92%</p>
+              </div>
+            </div>
+
+            <div class="mt-5 space-y-4">
+              <div>
+                <div class="mb-2 flex justify-between text-sm font-semibold">
+                  <span>Makharijul Huruf</span>
+                  <span class="text-jade">Baik</span>
+                </div>
+                <div class="h-2 rounded-full bg-emeraldDeep/10"><div class="progress-bar h-2 w-[78%] rounded-full bg-jade"></div></div>
+              </div>
+              <div>
+                <div class="mb-2 flex justify-between text-sm font-semibold">
+                  <span>Adab Mengaji</span>
+                  <span class="text-jade">Sangat Baik</span>
+                </div>
+                <div class="h-2 rounded-full bg-emeraldDeep/10"><div class="progress-bar h-2 w-[91%] rounded-full bg-dateGold"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="floating-card glass-panel absolute bottom-8 right-0 w-[76%] max-w-[370px] rounded-[8px] p-5 sm:right-8">
+            <div class="flex items-start gap-4">
+              <div class="grid h-11 w-11 shrink-0 place-items-center rounded-[8px] bg-dateGold text-white">
+                <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none">
+                  <path d="m9 12 2 2 4-5M12 3l1.8 1.9 2.6-.2.8 2.5 2.3 1.2-.8 2.5 1.1 2.4-2.2 1.5-.5 2.6-2.6.2L12 21l-1.8-1.9-2.6.2-.8-2.5-2.3-1.2.8-2.5-1.1-2.4 2.2-1.5.5-2.6 2.6-.2L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-extrabold text-emeraldDeep">Catatan Wali Kelas</p>
+                <p class="mt-2 text-sm leading-6 text-ink/60">Ananda semakin lancar membaca Al-Qur'an dan konsisten murajaah harian.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="fitur" class="border-y border-emeraldDeep/10 bg-white/60 py-12 backdrop-blur">
+        <div class="mx-auto grid max-w-7xl gap-4 px-5 sm:px-8 md:grid-cols-3">
+          <article class="rounded-[8px] p-5">
+            <p class="text-sm font-bold text-dateGold">01</p>
+            <h3 class="mt-3 font-display text-xl font-extrabold text-emeraldDeep">Input Nilai Cepat</h3>
+            <p class="mt-3 text-sm leading-7 text-ink/60">Guru dapat mencatat tilawah, hafalan, tajwid, dan adab dengan format yang mudah dipindai.</p>
+          </article>
+          <article class="rounded-[8px] p-5">
+            <p class="text-sm font-bold text-dateGold">02</p>
+            <h3 class="mt-3 font-display text-xl font-extrabold text-emeraldDeep">Pantau Perkembangan</h3>
+            <p class="mt-3 text-sm leading-7 text-ink/60">Ringkasan kelas membantu melihat santri yang perlu penguatan atau apresiasi lanjutan.</p>
+          </article>
+          <article class="rounded-[8px] p-5">
+            <p class="text-sm font-bold text-dateGold">03</p>
+            <h3 class="mt-3 font-display text-xl font-extrabold text-emeraldDeep">Rapor Siap Cetak</h3>
+            <p class="mt-3 text-sm leading-7 text-ink/60">Data tersusun untuk rapor mengaji yang informatif, hangat, dan mudah dibaca orang tua.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="alur" class="mx-auto max-w-7xl px-5 py-14 sm:px-8">
+        <div class="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-center">
+          <div>
+            <p class="text-sm font-bold uppercase tracking-[0.24em] text-dateGold">Alur kerja</p>
+            <h2 class="mt-4 font-display text-3xl font-extrabold text-emeraldDeep sm:text-4xl">Dari catatan harian menuju rapor semester.</h2>
+          </div>
+          <div class="grid gap-3 sm:grid-cols-3">
+            <div class="rounded-[8px] border border-emeraldDeep/10 bg-white/70 p-5">
+              <p class="text-2xl font-extrabold text-dateGold">1</p>
+              <p class="mt-3 text-sm font-bold">Pilih kelas</p>
+            </div>
+            <div class="rounded-[8px] border border-emeraldDeep/10 bg-white/70 p-5">
+              <p class="text-2xl font-extrabold text-dateGold">2</p>
+              <p class="mt-3 text-sm font-bold">Isi capaian</p>
+            </div>
+            <div class="rounded-[8px] border border-emeraldDeep/10 bg-white/70 p-5">
+              <p class="text-2xl font-extrabold text-dateGold">3</p>
+              <p class="mt-3 text-sm font-bold">Terbitkan rapor</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/vendor/animejs/anime.min.js"></script>
+    <script src="/assets/js/main.js"></script>
+  </body>
+</html>

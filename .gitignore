@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.env
+.env.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.DS_Store
+coverage/
+public/assets/css/styles.css.map
+
+# PocketBase & Database (JANGAN push database dan file executable ke Git)
+database/pb_data/
+database/pocketbase
+database/pocketbase.exe
+database/client.json
+*.zip

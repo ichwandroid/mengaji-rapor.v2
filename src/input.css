@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-parchment font-body text-ink antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex h-12 items-center justify-center gap-2 rounded-full bg-emeraldDeep px-6 text-sm font-semibold text-white shadow-soft transition duration-300 hover:-translate-y-0.5 hover:bg-jade focus:outline-none focus:ring-4 focus:ring-jade/20;
+  }
+
+  .btn-secondary {
+    @apply inline-flex h-12 items-center justify-center gap-2 rounded-full border border-emeraldDeep/15 bg-white/70 px-6 text-sm font-semibold text-emeraldDeep backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:border-dateGold/60 hover:bg-white focus:outline-none focus:ring-4 focus:ring-dateGold/20;
+  }
+
+  .glass-panel {
+    @apply border border-white/70 bg-white/75 shadow-glow backdrop-blur-xl;
+  }
+
+  .metric-card {
+    @apply rounded-[8px] border border-emeraldDeep/10 bg-white/80 p-4 shadow-soft backdrop-blur;
+  }
+}
+
+@layer utilities {
+  .islamic-grid {
+    background-image:
+      linear-gradient(rgba(15, 118, 110, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 118, 110, 0.08) 1px, transparent 1px);
+    background-size: 34px 34px;
+  }
+
+  .geometric-mask {
+    clip-path: polygon(50% 0%, 61% 17%, 82% 18%, 83% 39%, 100% 50%, 83% 61%, 82% 82%, 61% 83%, 50% 100%, 39% 83%, 18% 82%, 17% 61%, 0% 50%, 17% 39%, 18% 18%, 39% 17%);
+  }
+}

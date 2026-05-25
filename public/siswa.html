@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Siswa | Rapor Mengaji SD Anak Saleh</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/styles.css" />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body class="min-h-screen bg-[linear-gradient(135deg,#fffaf0_0%,#f7f2e8_46%,#e7f4ef_100%)] text-ink">
+  <main class="min-h-screen islamic-grid">
+    <div class="flex min-h-screen">
+      <aside
+        class="hidden w-72 shrink-0 border-r border-emeraldDeep/10 bg-white/70 px-5 py-6 backdrop-blur-xl lg:block">
+        <a href="/dashboard" class="flex items-center gap-3" aria-label="Dashboard Rapor Mengaji">
+          <span class="grid h-11 w-11 place-items-center rounded-[8px] bg-emeraldDeep text-white shadow-soft">
+            <i class="ph ph-moon-stars text-2xl"></i>
+          </span>
+          <span>
+            <span class="block font-display text-base font-extrabold leading-5 text-emeraldDeep">Rapor Mengaji</span>
+            <span class="block text-xs font-semibold uppercase tracking-[0.24em] text-dateGold">SD Anak Saleh</span>
+          </span>
+        </a>
+
+        <nav class="mt-10 space-y-2" aria-label="Menu dashboard">
+          <a href="/dashboard"
+            class="flex h-11 items-center gap-3 rounded-[8px] px-4 text-sm font-bold text-ink/70 transition hover:bg-white hover:text-emeraldDeep">
+            <i class="ph ph-house text-xl"></i>
+            Home
+          </a>
+          <a data-admin-only href="/users"
+            class="flex h-11 items-center gap-3 rounded-[8px] px-4 text-sm font-bold text-ink/70 transition hover:bg-white hover:text-emeraldDeep">
+            <i class="ph ph-identification-badge text-xl"></i>
+            User
+          </a>
+          <a href="/siswa"
+            class="flex h-11 items-center gap-3 rounded-[8px] bg-emeraldDeep px-4 text-sm font-bold text-white shadow-soft">
+            <i class="ph ph-graduation-cap text-xl"></i>
+            Siswa
+          </a>
+          <a data-admin-only href="/materi"
+            class="flex h-11 items-center gap-3 rounded-[8px] px-4 text-sm font-bold text-ink/70 transition hover:bg-white hover:text-emeraldDeep">
+            <i class="ph ph-books text-xl"></i>
+            Materi
+          </a>
+          <a data-gpq-only href="/tahfizh-quran"
+            class="flex h-11 items-center gap-3 rounded-[8px] px-4 text-sm font-bold text-ink/70 transition hover:bg-white hover:text-emeraldDeep">
+            <i class="ph ph-book-open-text text-xl"></i>
+            Tahfizh Al-Qur'an
+          </a>
+          <a data-gpq-only href="/bilqolam"
+            class="flex h-11 items-center gap-3 rounded-[8px] px-4 text-sm font-bold text-ink/70 transition hover:bg-white hover:text-emeraldDeep">
+            <i class="ph ph-book-bookmark text-xl"></i>
+            Bilqolam
+          </a>
+          <a data-gpq-only href="/doa-harian"
+            class="flex h-11 items-center gap-3 rounded-[8px] px-4 text-sm font-bold text-ink/70 transition hover:bg-white hover:text-emeraldDeep">
+            <i class="ph ph-hands-praying text-xl"></i>
+            Do'a Sehari-hari
+          </a>
+          <a data-gpai-only href="/tathbiq-ibadah"
+            class="flex h-11 items-center gap-3 rounded-[8px] px-4 text-sm font-bold text-ink/70 transition hover:bg-white hover:text-emeraldDeep">
+            <i class="ph ph-mosque text-xl"></i>
+            Tathbiq Ibadah
+          </a>
+          <a href="/laporan"
+            class="flex h-11 items-center gap-3 rounded-[8px] px-4 text-sm font-bold text-ink/70 transition hover:bg-white hover:text-emeraldDeep">
+            <i class="ph ph-file-text text-xl"></i>
+            Laporan
+          </a>
+        </nav>
+      </aside>
+
+      <section class="flex min-w-0 flex-1 flex-col">
+        <header
+          class="sticky top-0 z-20 border-b border-emeraldDeep/10 bg-parchment/80 px-5 py-4 backdrop-blur-xl sm:px-8">
+          <div class="mx-auto flex items-center justify-between gap-4">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-[0.22em] text-dateGold">Dashboard</p>
+              <h1 class="mt-1 font-display text-xl font-extrabold text-emeraldDeep sm:text-2xl">Siswa</h1>
+            </div>
+            <div class="flex items-center gap-3">
+              <a href="/"
+                class="hidden h-10 items-center rounded-[8px] px-4 text-sm font-bold text-ink/65 transition hover:bg-white hover:text-emeraldDeep sm:inline-flex">Homepage</a>
+              <button data-logout
+                class="h-10 rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-bold text-emeraldDeep transition hover:border-dateGold/50 hover:bg-white"
+                type="button">Logout</button>
+            </div>
+          </div>
+        </header>
+
+        <div class="mx-auto w-full flex-1 px-5 py-8 sm:px-8">
+          <nav class="mb-6 flex flex-wrap gap-2 lg:hidden" aria-label="Menu dashboard mobile">
+            <a href="/dashboard"
+              class="flex h-11 items-center justify-center gap-2 rounded-[8px] border border-emeraldDeep/10 bg-white/75 px-4 text-sm font-bold text-emeraldDeep transition hover:bg-white">
+              <i class="ph ph-house text-lg lg:hidden"></i>
+              Home
+            </a>
+            <a data-admin-only href="/users"
+              class="flex h-11 items-center justify-center gap-2 rounded-[8px] border border-emeraldDeep/10 bg-white/75 px-4 text-sm font-bold text-emeraldDeep transition hover:bg-white">
+              <i class="ph ph-identification-badge text-lg lg:hidden"></i>
+              User
+            </a>
+            <a href="/siswa"
+              class="flex h-11 items-center justify-center gap-2 rounded-[8px] bg-emeraldDeep px-4 text-sm font-bold text-white shadow-soft">
+              <i class="ph ph-graduation-cap text-lg lg:hidden"></i>
+              Siswa
+            </a>
+            <a data-admin-only href="/materi"
+              class="flex h-11 items-center justify-center gap-2 rounded-[8px] border border-emeraldDeep/10 bg-white/75 px-4 text-sm font-bold text-emeraldDeep transition hover:bg-white">
+              <i class="ph ph-books text-lg lg:hidden"></i>
+              Materi
+            </a>
+            <a data-gpq-only href="/tahfizh-quran"
+              class="flex h-11 items-center justify-center gap-2 rounded-[8px] border border-emeraldDeep/10 bg-white/75 px-4 text-sm font-bold text-emeraldDeep transition hover:bg-white">
+              <i class="ph ph-book-open-text text-lg lg:hidden"></i>
+              Tahfizh Al-Qur'an
+            </a>
+            <a data-gpq-only href="/bilqolam"
+              class="flex h-11 items-center justify-center gap-2 rounded-[8px] border border-emeraldDeep/10 bg-white/75 px-4 text-sm font-bold text-emeraldDeep transition hover:bg-white">
+              <i class="ph ph-book-bookmark text-lg lg:hidden"></i>
+              Bilqolam
+            </a>
+            <a data-gpq-only href="/doa-harian"
+              class="flex h-11 items-center justify-center gap-2 rounded-[8px] border border-emeraldDeep/10 bg-white/75 px-4 text-sm font-bold text-emeraldDeep transition hover:bg-white">
+              <i class="ph ph-hands-praying text-lg lg:hidden"></i>
+              Do'a Sehari-hari
+            </a>
+            <a data-gpai-only href="/tathbiq-ibadah"
+              class="flex h-11 items-center justify-center gap-2 rounded-[8px] border border-emeraldDeep/10 bg-white/75 px-4 text-sm font-bold text-emeraldDeep transition hover:bg-white">
+              <i class="ph ph-mosque text-lg lg:hidden"></i>
+              Tathbiq Ibadah
+            </a>
+            <a href="/laporan"
+              class="flex h-11 items-center justify-center gap-2 rounded-[8px] border border-emeraldDeep/10 bg-white/75 px-4 text-sm font-bold text-emeraldDeep transition hover:bg-white">
+              <i class="ph ph-file-text text-lg lg:hidden"></i>
+              Laporan
+            </a>
+          </nav>
+
+          <section class="rounded-[8px] border border-white/70 bg-white/70 p-6 shadow-glow backdrop-blur-xl sm:p-8">
+            <p class="text-sm font-bold uppercase tracking-[0.22em] text-dateGold">Data Siswa</p>
+            <h2 class="mt-4 font-display text-3xl font-extrabold text-emeraldDeep">Siswa SD Anak Saleh</h2>
+            <p class="mt-3 max-w-2xl text-sm leading-7 text-ink/60">Halaman siswa dapat diakses oleh Admin, GPQ, dan
+              GPAI untuk melihat data siswa rapor mengaji.</p>
+          </section>
+
+          <section class="mt-6 rounded-[8px] border border-emeraldDeep/10 bg-white/75 p-6 shadow-soft backdrop-blur">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-[0.22em] text-dateGold">Daftar Siswa</p>
+                <h3 class="mt-3 font-display text-2xl font-extrabold text-emeraldDeep">Tabel Siswa</h3>
+              </div>
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <button data-admin-only data-download-siswa-template="xlsx"
+                  class="h-10 rounded-[8px] border border-emeraldDeep/10 bg-white px-4 text-sm font-bold text-emeraldDeep transition hover:border-dateGold/50 hover:bg-parchment"
+                  type="button">Template Excel</button>
+                <button data-admin-only data-download-siswa-template="csv"
+                  class="h-10 rounded-[8px] border border-emeraldDeep/10 bg-white px-4 text-sm font-bold text-emeraldDeep transition hover:border-dateGold/50 hover:bg-parchment"
+                  type="button">Template CSV</button>
+                <label data-admin-only
+                  class="inline-flex h-10 cursor-pointer items-center justify-center rounded-[8px] bg-emeraldDeep px-4 text-sm font-bold text-white shadow-soft transition hover:bg-jade">
+                  Upload Siswa
+                  <input data-siswa-import-file class="sr-only" type="file"
+                    accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" />
+                </label>
+                <button data-admin-only data-open-siswa-modal
+                  class="h-10 rounded-[8px] bg-emeraldDeep px-4 text-sm font-bold text-white shadow-soft transition hover:bg-jade"
+                  type="button">Tambah Siswa</button>
+              </div>
+            </div>
+
+            <div
+              class="mt-4 grid gap-3 rounded-[8px] border border-emeraldDeep/10 bg-white/60 p-3 sm:grid-cols-2 lg:grid-cols-6">
+              <input data-siswa-filter-nama
+                class="h-10 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+                type="search" placeholder="Cari nama siswa" autocomplete="off" />
+              <input data-siswa-filter-kelas
+                class="h-10 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+                type="text" placeholder="Kelas" autocomplete="off" />
+              <select data-siswa-filter-kelompok
+                class="h-10 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-bold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+                autocomplete="off">
+                <option value="">Semua Kelompok</option>
+                <option value="Kelompok 1">Kelompok 1</option>
+                <option value="Kelompok 2">Kelompok 2</option>
+                <option value="Kelompok 3">Kelompok 3</option>
+                <option value="Kelompok 4">Kelompok 4</option>
+                <option value="Kelompok 5">Kelompok 5</option>
+                <option value="Kelompok 6">Kelompok 6</option>
+                <option value="Kelompok 7">Kelompok 7</option>
+                <option value="Kelompok 8">Kelompok 8</option>
+                <option value="Kelompok 9">Kelompok 9</option>
+                <option value="Kelompok 10">Kelompok 10</option>
+                <option value="Kelompok 11">Kelompok 11</option>
+                <option value="Kelompok 12">Kelompok 12</option>
+              </select>
+              <select data-siswa-filter-shift
+                class="h-10 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-bold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+                autocomplete="off">
+                <option value="">Semua Shift</option>
+                <option value="Shift 1">Shift 1</option>
+                <option value="Shift 2">Shift 2</option>
+                <option value="Shift 3">Shift 3</option>
+              </select>
+              <select data-siswa-filter-sort
+                class="h-10 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-bold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+                autocomplete="off">
+                <option value="az">Nama A-Z</option>
+                <option value="za">Nama Z-A</option>
+              </select>
+              <button data-reset-siswa-filter
+                class="h-10 w-full rounded-[8px] border border-emeraldDeep/10 bg-white px-4 text-sm font-bold text-emeraldDeep transition hover:border-dateGold/50"
+                type="button">Reset</button>
+            </div>
+
+            <p data-siswa-status class="mt-3 text-sm font-semibold text-ink/55">Memuat data siswa...</p>
+
+            <div class="mt-6 overflow-hidden rounded-[8px] border border-emeraldDeep/10">
+              <div class="overflow-x-auto">
+                <table class="w-full min-w-[1220px] border-collapse bg-white/70 text-left text-sm">
+                  <thead class="bg-emeraldDeep text-white">
+                    <tr>
+                      <th class="px-4 py-3 font-bold">NIS</th>
+                      <th class="px-4 py-3 font-bold">NISN</th>
+                      <th class="px-4 py-3 font-bold">NAMA SISWA</th>
+                      <th class="px-4 py-3 font-bold">KELAS</th>
+                      <th class="px-4 py-3 font-bold">KELOMPOK</th>
+                      <th class="px-4 py-3 font-bold">SHIFT</th>
+                      <th class="px-4 py-3 font-bold">STATUS</th>
+                      <th class="px-4 py-3 font-bold">INKLUSIF</th>
+                      <th class="px-4 py-3 font-bold">NAMA GURU QUR'AN</th>
+                      <th data-admin-only class="px-4 py-3 font-bold">ACTION</th>
+                    </tr>
+                  </thead>
+                  <tbody data-siswa-table class="divide-y divide-emeraldDeep/10">
+                    <tr>
+                      <td class="px-4 py-5 text-ink/55" colspan="10">Memuat data siswa...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div data-siswa-modal
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-ink/45 px-5 py-8 backdrop-blur-sm">
+    <section
+      class="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[8px] border border-white/70 bg-parchment p-6 shadow-glow">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.22em] text-dateGold">Form Siswa</p>
+          <h2 data-siswa-modal-title class="mt-2 font-display text-2xl font-extrabold text-emeraldDeep">Tambah Siswa
+          </h2>
+        </div>
+        <button data-close-siswa-modal
+          class="grid h-10 w-10 place-items-center rounded-[8px] border border-emeraldDeep/10 bg-white/80 text-emeraldDeep transition hover:border-dateGold/50"
+          type="button" aria-label="Tutup modal">
+          <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none">
+            <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      <form data-siswa-form class="mt-6 space-y-4">
+        <input data-siswa-id name="id" type="hidden" />
+        <div class="grid gap-3 sm:grid-cols-2">
+          <input name="nis"
+            class="h-11 rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+            type="text" placeholder="NIS" required />
+          <input name="nisn"
+            class="h-11 rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+            type="text" placeholder="NISN" />
+        </div>
+        <input name="nama_siswa"
+          class="h-11 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+          type="text" placeholder="Nama Siswa" required />
+        <div class="grid gap-3 sm:grid-cols-2">
+          <input name="kelas"
+            class="h-11 rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+            type="text" placeholder="Kelas" required />
+          <select name="kelompok"
+            class="h-11 rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-bold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15">
+            <option value="">Pilih Kelompok</option>
+            <option value="Kelompok 1">Kelompok 1</option>
+            <option value="Kelompok 2">Kelompok 2</option>
+            <option value="Kelompok 3">Kelompok 3</option>
+            <option value="Kelompok 4">Kelompok 4</option>
+            <option value="Kelompok 5">Kelompok 5</option>
+            <option value="Kelompok 6">Kelompok 6</option>
+            <option value="Kelompok 7">Kelompok 7</option>
+            <option value="Kelompok 8">Kelompok 8</option>
+            <option value="Kelompok 9">Kelompok 9</option>
+            <option value="Kelompok 10">Kelompok 10</option>
+            <option value="Kelompok 11">Kelompok 11</option>
+            <option value="Kelompok 12">Kelompok 12</option>
+          </select>
+        </div>
+        <select name="shift"
+          class="h-11 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-bold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15">
+          <option value="">Pilih Shift</option>
+          <option value="Shift 1">Shift 1</option>
+          <option value="Shift 2">Shift 2</option>
+          <option value="Shift 3">Shift 3</option>
+        </select>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <select name="status"
+            class="h-11 rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-bold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15">
+            <option value="Reguler">Reguler</option>
+            <option value="Pasca">Pasca</option>
+          </select>
+          <select name="inklusif"
+            class="h-11 rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-bold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15">
+            <option value="Tidak">Tidak Inklusif</option>
+            <option value="Ya">Inklusif</option>
+          </select>
+        </div>
+        <select name="nama_guru_quran" data-siswa-guru-quran
+          class="h-11 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-bold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15">
+          <option value="">Pilih Guru Qur'an</option>
+        </select>
+
+        <p data-siswa-form-status class="hidden text-sm font-semibold"></p>
+        <div class="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+          <button data-close-siswa-modal
+            class="h-11 rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-5 text-sm font-bold text-emeraldDeep transition hover:border-dateGold/50"
+            type="button">Batal</button>
+          <button data-siswa-form-submit
+            class="h-11 rounded-[8px] bg-emeraldDeep px-5 text-sm font-bold text-white shadow-soft transition hover:bg-jade"
+            type="submit">Simpan</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script src="/vendor/pocketbase/pocketbase.umd.js"></script>
+  <script src="/vendor/xlsx/xlsx.full.min.js"></script>
+  <script src="/assets/js/dashboard.js"></script>
+</body>
+
+</html>
