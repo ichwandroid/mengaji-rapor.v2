@@ -43,6 +43,8 @@ const userEmailInput = document.querySelector("[data-user-form-email]");
 const userRoleInput = document.querySelector("[data-user-form-role]");
 const userGpqGroup = document.querySelector("[data-user-gpq-group]");
 const userGpqShiftInputs = document.querySelectorAll("[data-user-form-gpq-shift]");
+const userGpqClasses = document.querySelector("[data-user-gpq-classes]");
+const userGpqClassList = document.querySelector("[data-user-gpq-class-list]");
 const userGpaiClasses = document.querySelector("[data-user-gpai-classes]");
 const userGpaiClassList = document.querySelector("[data-user-gpai-class-list]");
 const userPasswordInput = document.querySelector("[data-user-form-password]");
@@ -233,6 +235,34 @@ function setupGpaiClassOptions() {
   userGpaiClassList.appendChild(fragment);
 }
 
+function setupGpqClassOptions() {
+  if (!userGpqClassList || userGpqClassList.children.length) return;
+
+  userGpqClassList.innerHTML = "";
+  const fragment = document.createDocumentFragment();
+
+  gpaiClassOptions.forEach((kelas) => {
+    const label = document.createElement("label");
+    label.className = "flex h-9 items-center justify-center rounded-[8px] border border-emeraldDeep/10 bg-parchment/60 text-sm font-extrabold text-emeraldDeep cursor-pointer";
+
+    const input = document.createElement("input");
+    input.className = "sr-only peer";
+    input.setAttribute("data-user-gpq-class-value", kelas);
+    input.type = "checkbox";
+    input.value = kelas;
+
+    const span = document.createElement("span");
+    span.className = "grid h-full w-full place-items-center rounded-[8px] transition peer-checked:bg-emeraldDeep peer-checked:text-white";
+    span.textContent = kelas;
+
+    label.appendChild(input);
+    label.appendChild(span);
+    fragment.appendChild(label);
+  });
+
+  userGpqClassList.appendChild(fragment);
+}
+
 function setupGpqShiftOptions() {
   userGpqShiftInputs.forEach((select) => {
     if (select.children.length > 1) return;
@@ -279,6 +309,20 @@ function fillSelectedGpqShifts(record = {}) {
   document.querySelector('[data-user-form-gpq-shift="3"]').value = record.gpq_shift_3 || "";
 }
 
+function getSelectedGpqClasses() {
+  return Array.from(userGpqClassList?.querySelectorAll("[data-user-gpq-class-value]:checked") || []).map(
+    (input) => input.value
+  );
+}
+
+function fillSelectedGpqClasses(values = []) {
+  const selectedValues = new Set(Array.isArray(values) ? values : []);
+
+  userGpqClassList?.querySelectorAll("[data-user-gpq-class-value]").forEach((input) => {
+    input.checked = selectedValues.has(input.value);
+  });
+}
+
 function getSelectedGpaiClasses() {
   return Array.from(userGpaiClassList?.querySelectorAll("[data-user-gpai-class-value]:checked") || []).map(
     (input) => input.value
@@ -298,6 +342,7 @@ function openUserModal(record = null) {
 
   setupGpaiClassOptions();
   setupGpqShiftOptions();
+  setupGpqClassOptions();
   userForm.reset();
   userIdInput.value = record?.id || "";
   userNameInput.value = record?.name || "";
@@ -306,6 +351,7 @@ function openUserModal(record = null) {
   userEmailInput.value = record?.email || "";
   userRoleInput.value = record?.role || "-";
   fillSelectedGpqShifts(record || {});
+  fillSelectedGpqClasses(record?.gpq_kelas || []);
   fillSelectedGpaiClasses(record?.gpai_kelas || []);
   setGpqGroupVisibility();
   setGpaiClassVisibility();
@@ -1022,9 +1068,13 @@ function filterSiswaForCurrentRole(records) {
   const currentUser = pb?.authStore.record;
 
   if (currentUser?.role === "GPQ") {
-    const allowedNames = [currentUser.name, currentUser.email].map(normalizeTeacherName).filter(Boolean);
-
-    return records.filter((record) => allowedNames.includes(normalizeTeacherName(record.nama_guru_quran)));
+    if (window.location.pathname.includes("tahfizh-quran")) {
+      const allowedClasses = new Set((currentUser.gpq_kelas || []).map(normalizeClassName));
+      return records.filter((record) => allowedClasses.has(normalizeClassName(record.kelas)));
+    } else {
+      const allowedNames = [currentUser.name, currentUser.email].map(normalizeTeacherName).filter(Boolean);
+      return records.filter((record) => allowedNames.includes(normalizeTeacherName(record.nama_guru_quran)));
+    }
   }
 
   if (currentUser?.role === "GPAI") {
@@ -2247,6 +2297,7 @@ async function submitUserForm(event) {
     gpq_shift_1: userRoleInput.value === "GPQ" ? gpqShifts.gpq_shift_1 : "",
     gpq_shift_2: userRoleInput.value === "GPQ" ? gpqShifts.gpq_shift_2 : "",
     gpq_shift_3: userRoleInput.value === "GPQ" ? gpqShifts.gpq_shift_3 : "",
+    gpq_kelas: userRoleInput.value === "GPQ" ? getSelectedGpqClasses() : [],
     gpai_kelas: userRoleInput.value === "GPAI" ? getSelectedGpaiClasses() : [],
     verified: userVerifiedInput.checked
   };

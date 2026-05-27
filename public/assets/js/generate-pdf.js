@@ -91,7 +91,7 @@ async function generatePDF(siswaId) {
         pb.collection("bilqolam").getFullList({ filter: `siswa="${siswaId}"` }),
         pb.collection("nilai_doa").getFullList({ filter: `siswa="${siswaId}"` }),
         pb.collection("nilai_tathbiq").getFullList({ filter: `siswa="${siswaId}"` }),
-        pb.collection("guru").getFullList().catch(() => []) 
+        pb.collection("users").getFullList().catch(() => []) 
     ]);
 
     const materiMap = new Map();
@@ -99,7 +99,20 @@ async function generatePDF(siswaId) {
 
     // Data prep
     const studentName = student.nama_siswa || student.nama_lengkap || '-';
-    const studentClass = student.kelas || '-';
+    
+    const classNameMap = {
+        "1A": "1A - Pohon Trembesi", "1B": "1B - Pohon Kulim", "1C": "1C - Pohon Kenanga", "1D": "1D - Pohon Pingku",
+        "2A": "2A - Pohon Sungkai", "2B": "2B - Pohon Randu", "2C": "2C - Pohon Sengon", "2D": "2D - Pohon Mahoni",
+        "3A": "3A - Pohon Saga", "3B": "3B - Pohon Bungur", "3C": "3C - Pohon Eboni", "3D": "3D - Pohon Cantigi",
+        "4A": "4A - Pohon Meranti", "4B": "4B - Pohon Damar", "4C": "4C - Pohon Cendana", "4D": "4D - Pohon Ulin",
+        "5A": "5A - Pohon Mersawa", "5B": "5B - Pohon Pinus", "5C": "5C - Pohon Beringin", "5D": "5D - Pohon Cemara",
+        "6A": "6A - Pohon Jati", "6B": "6B - Pohon Palapi", "6C": "6C - Pohon Bintangur", "6D": "6D - Pohon Mindi"
+    };
+    
+    const rawClass = student.kelas || '-';
+    const cleanClassKey = rawClass.replace(/kelas\s*/i, "").trim().toUpperCase();
+    const studentClass = classNameMap[cleanClassKey] || rawClass;
+
     const studentNis = student.nis || student.nisn || '-';
     const kelasNum = studentClass.match(/\d+/)?.[0] || null;
 
@@ -181,7 +194,7 @@ async function generatePDF(siswaId) {
     // 1. BILQOLAM
     const bilqolamRecord = bilqolamRecords[0];
     const bilqLetter = String.fromCharCode(sectionCode++);
-    const bilqTitle = bilqolamRecord?.jilid ? `BILQOLAM ${bilqolamRecord.jilid}` : 'BILQOLAM';
+    const bilqTitle = bilqolamRecord?.jilid ? `BILQOLAM ${bilqolamRecord.jilid.toUpperCase()}` : 'BILQOLAM';
     tableBody.push([
         { content: bilqLetter, styles: { fontStyle: 'bold', fillColor: [229, 231, 235] } },
         { content: bilqTitle, colSpan: 4, styles: { fontStyle: 'bold', fillColor: [229, 231, 235] } }
@@ -389,7 +402,7 @@ async function generatePDF(siswaId) {
             const pageWidth = doc.internal.pageSize.width;
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(`${studentName} | ${studentClass} | 2025/2026`, 14, pageHeight - 10);
+            doc.text(`${studentName} | ${cleanClassKey} | 2025/2026`, 14, pageHeight - 10);
             doc.text(`Semester Genap | Halaman ${data.pageNumber}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
         }
     });
@@ -431,7 +444,7 @@ async function generatePDF(siswaId) {
             const pageWidth = doc.internal.pageSize.width;
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(`${studentName} | ${studentClass} | 2025/2026`, 14, pageHeight - 10);
+            doc.text(`${studentName} | ${cleanClassKey} | 2025/2026`, 14, pageHeight - 10);
             doc.text(`Semester Genap | Halaman ${doc.internal.getCurrentPageInfo().pageNumber}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
         }
     });
@@ -474,7 +487,7 @@ async function generatePDF(siswaId) {
             const pageWidth = doc.internal.pageSize.width;
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(`${studentName} | ${studentClass} | 2025/2026`, 14, pageHeight - 10);
+            doc.text(`${studentName} | ${cleanClassKey} | 2025/2026`, 14, pageHeight - 10);
             doc.text(`Semester Genap | Halaman ${doc.internal.getCurrentPageInfo().pageNumber}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
         }
     });
@@ -494,7 +507,11 @@ async function generatePDF(siswaId) {
     doc.text(': Malang', 40, yPos);
     yPos += 5;
     doc.text('Tanggal', 14, yPos);
-    doc.text(': 19 Desember 2025', 40, yPos);
+    let tanggalRapor = '19 Juni 2026';
+    if (kelasNum === '6') {
+        tanggalRapor = '2 Juni 2026';
+    }
+    doc.text(`: ${tanggalRapor}`, 40, yPos);
 
     yPos += 5;
 
@@ -508,19 +525,25 @@ async function generatePDF(siswaId) {
 
     yPos += 25;
 
-    const guruPaiName = student.guru_pai || '...........................';
-    const guruGpqName = student.bilqolam_guru || student.nama_guru_quran || '...........................';
+    const normalizedStudentClass = rawClass.replace(/kelas\s*/i, "").trim().toUpperCase();
 
-    const guruPai = teachersList.find(t => t.nama_lengkap === guruPaiName);
-    const guruGpq = teachersList.find(t => t.nama_lengkap === guruGpqName);
+    const guruPai = teachersList.find(t => {
+        if (t.role !== 'GPAI' || !Array.isArray(t.gpai_kelas)) return false;
+        return t.gpai_kelas.some(k => k.replace(/kelas\s*/i, "").trim().toUpperCase() === normalizedStudentClass);
+    });
+    const guruGpqName = student.nama_guru_quran || '...........................';
+    const guruGpq = teachersList.find(t => t.name === guruGpqName);
+
+    const paiDisplayName = guruPai ? (guruPai.nama_lengkap || guruPai.name) : '...........................';
+    const gpqDisplayName = guruGpq ? (guruGpq.nama_lengkap || guruGpq.name) : guruGpqName;
 
     const niyPai = guruPai && guruPai.niy ? guruPai.niy : '...........................';
     const niyGpq = guruGpq && guruGpq.niy ? guruGpq.niy : '...........................';
 
     doc.setFont(undefined, 'bold');
-    doc.text(guruPaiName, leftX, yPos, { align: 'center' });
+    doc.text(paiDisplayName, leftX, yPos, { align: 'center' });
     doc.text('Andreas Setiyono, S.Pd.Gr., M.Kom', centerX, yPos, { align: 'center' });
-    doc.text(guruGpqName, rightX, yPos, { align: 'center' });
+    doc.text(gpqDisplayName, rightX, yPos, { align: 'center' });
 
     yPos += 4;
     doc.setFont(undefined, 'normal');
