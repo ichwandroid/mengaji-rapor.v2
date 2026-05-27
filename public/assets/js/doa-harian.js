@@ -40,7 +40,7 @@ function setDoaHarianFormStatus(message, tone = "info") {
 
 function renderDoaHarianRows(filteredSiswa) {
   if (!doaHarianTable) return;
-  const colspan = (isAdmin() || isGPQ()) ? 4 : 3;
+  const colspan = (isAdmin() || isGPAI()) ? 4 : 3;
 
   doaHarianTable.innerHTML = "";
 
@@ -109,8 +109,8 @@ function renderDoaHarianRows(filteredSiswa) {
     tdStatus.appendChild(spanStatus);
     tr.appendChild(tdStatus);
 
-    // Column 4: Nilai button (Admin or GPQ only)
-    if (isAdmin() || isGPQ()) {
+    // Column 4: Nilai button (Admin or GPAI only)
+    if (isAdmin() || isGPAI()) {
       const tdAction = document.createElement("td");
       tdAction.className = "px-4 py-4";
 
@@ -180,7 +180,7 @@ async function loadInitialData() {
   setDoaHarianStatus("Memuat data...");
   try {
     const [siswaRecords, materiRecords, nilaiRecords] = await Promise.all([
-      fetchSiswaRecords(),
+      fetchSiswaRecords().then(filterSiswaForCurrentRole),
       pb.collection("materi").getFullList({ filter: 'category="doa-harian"', sort: "materi" }),
       pb.collection("nilai_doa").getFullList({ sort: "-created" })
     ]);
@@ -215,6 +215,23 @@ function openDoaHarianModal(siswaId) {
   doaHarianForm.reset();
   doaHarianSiswaIdInput.value = siswa.id;
   doaHarianModalTitle.textContent = `Penilaian Do'a: ${siswa.nama_siswa} (Kelas ${siswa.kelas || '-'})`;
+  
+  const deskripsiContainer = document.querySelector("[data-deskripsi-container]");
+  const deskripsiInput = doaHarianForm.elements.deskripsi_doa;
+  
+  if (siswa.inklusif === "Ya") {
+    if (deskripsiContainer) deskripsiContainer.classList.remove("hidden");
+    if (deskripsiInput) {
+      deskripsiInput.value = siswa.deskripsi_doa || "";
+      deskripsiInput.required = true;
+    }
+  } else {
+    if (deskripsiContainer) deskripsiContainer.classList.add("hidden");
+    if (deskripsiInput) {
+      deskripsiInput.value = "";
+      deskripsiInput.required = false;
+    }
+  }
   
   const currentMonth = new Date().getMonth() + 1;
   const currentSemester = currentMonth >= 7 ? "Ganjil" : "Genap";
@@ -362,6 +379,17 @@ async function submitDoaHarianForm(event) {
         // Unchecked or score emptied -> delete the record
         promises.push(pb.collection("nilai_doa").delete(recordId, { requestKey: null }));
       }
+    }
+
+    if (siswa.inklusif === "Ya") {
+      const deskripsi = formData.get("deskripsi_doa") || "";
+      promises.push(
+        pb.collection("siswa").update(siswaId, { deskripsi_doa: deskripsi }, { requestKey: null })
+          .then(updatedSiswa => {
+             const idx = doaHarianSiswaCache.findIndex(s => s.id === siswaId);
+             if (idx !== -1) doaHarianSiswaCache[idx] = updatedSiswa;
+          })
+      );
     }
 
     await Promise.all(promises);

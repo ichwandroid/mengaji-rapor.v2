@@ -40,7 +40,7 @@ function setTahfizhQuranFormStatus(message, tone = "info") {
 
 function renderTahfizhQuranRows(filteredSiswa) {
   if (!tahfizhQuranTable) return;
-  const colspan = (isAdmin() || isGPQ()) ? 4 : 3;
+  const colspan = (isAdmin() || isGPQ() || isGPAI()) ? 4 : 3;
 
   tahfizhQuranTable.innerHTML = "";
 
@@ -144,8 +144,8 @@ function renderTahfizhQuranRows(filteredSiswa) {
     tdStatus.appendChild(divStatus);
     tr.appendChild(tdStatus);
 
-    // Column 4: Nilai button (Admin or GPQ only)
-    if (isAdmin() || isGPQ()) {
+    // Column 4: Nilai button (Admin or GPQ or GPAI only)
+    if (isAdmin() || isGPQ() || isGPAI()) {
       const tdAction = document.createElement("td");
       tdAction.className = "px-4 py-4";
 
@@ -215,7 +215,7 @@ async function loadInitialData() {
   setTahfizhQuranStatus("Memuat data...");
   try {
     const [siswaRecords, materiRecords, nilaiRecords] = await Promise.all([
-      fetchSiswaRecords(),
+      fetchSiswaRecords().then(filterSiswaForCurrentRole),
       pb.collection("materi").getFullList({ filter: 'category="tahfizh-quran"', sort: "materi" }),
       pb.collection("nilai_tahfizh").getFullList({ sort: "-created" })
     ]);
@@ -251,6 +251,23 @@ function openTahfizhQuranModal(siswaId) {
   tahfizhQuranSiswaIdInput.value = siswa.id;
   tahfizhQuranModalTitle.textContent = `Penilaian Tahfizh: ${siswa.nama_siswa} (Kelas ${siswa.kelas || '-'})`;
   
+  const deskripsiContainer = document.querySelector("[data-deskripsi-container]");
+  const deskripsiInput = tahfizhQuranForm.elements.deskripsi_tahfizh;
+  
+  if (siswa.inklusif === "Ya") {
+    if (deskripsiContainer) deskripsiContainer.classList.remove("hidden");
+    if (deskripsiInput) {
+      deskripsiInput.value = siswa.deskripsi_tahfizh || "";
+      deskripsiInput.required = true;
+    }
+  } else {
+    if (deskripsiContainer) deskripsiContainer.classList.add("hidden");
+    if (deskripsiInput) {
+      deskripsiInput.value = "";
+      deskripsiInput.required = false;
+    }
+  }
+
   const currentMonth = new Date().getMonth() + 1;
   const currentSemester = currentMonth >= 7 ? "Ganjil" : "Genap";
   
@@ -448,6 +465,17 @@ async function submitTahfizhQuranForm(event) {
         // Unchecked or score emptied -> delete the record
         promises.push(pb.collection("nilai_tahfizh").delete(recordId, { requestKey: null }));
       }
+    }
+
+    if (siswa.inklusif === "Ya") {
+      const deskripsi = formData.get("deskripsi_tahfizh") || "";
+      promises.push(
+        pb.collection("siswa").update(siswaId, { deskripsi_tahfizh: deskripsi }, { requestKey: null })
+          .then(updatedSiswa => {
+             const idx = tahfizhQuranSiswaCache.findIndex(s => s.id === siswaId);
+             if (idx !== -1) tahfizhQuranSiswaCache[idx] = updatedSiswa;
+          })
+      );
     }
 
     await Promise.all(promises);

@@ -1,4 +1,4 @@
-const pocketBaseUrl = "http://127.0.0.1:8090";
+const pocketBaseUrl = `${window.location.protocol}//${window.location.hostname}:8090`;
 const pb = window.PocketBase ? new PocketBase(pocketBaseUrl) : null;
 
 function safeGet(obj, key) {
@@ -33,6 +33,8 @@ const userForm = document.querySelector("[data-user-form]");
 const userFormTitle = document.querySelector("[data-user-modal-title]");
 const userFormStatus = document.querySelector("[data-user-form-status]");
 const userFormSubmit = document.querySelector("[data-user-form-submit]");
+const userImportFile = document.querySelector("[data-user-import-file]");
+const downloadUserTemplateButtons = document.querySelectorAll("[data-download-user-template]");
 const userIdInput = document.querySelector("[data-user-id]");
 const userNameInput = document.querySelector("[data-user-form-name]");
 const userNamaLengkapInput = document.querySelector("[data-user-form-nama-lengkap]");
@@ -121,7 +123,7 @@ let siswaCache = [];
 const gpaiClassOptions = Array.from({ length: 6 }, (_, index) => index + 1).flatMap((grade) =>
   ["A", "B", "C", "D"].map((letter) => `${grade}${letter}`)
 );
-const gpqGroupOptions = Array.from({ length: 12 }, (_, index) => `Kelompok ${index + 1}`);
+const gpqGroupOptions = Array.from({ length: 14 }, (_, index) => `Kelompok ${index + 1}`);
 
 function isAdmin(record = pb?.authStore.record) {
   return record?.role === "Admin";
@@ -491,6 +493,23 @@ async function openSiswaModal(record = null) {
   siswaModal.classList.add("flex");
   await loadGuruQuranOptions();
   siswaForm.elements.nama_guru_quran.value = record?.nama_guru_quran || "";
+
+  const isNotAdmin = !isAdmin();
+  siswaForm.elements.nis.readOnly = isNotAdmin;
+  siswaForm.elements.nisn.readOnly = isNotAdmin;
+  siswaForm.elements.nama_siswa.readOnly = isNotAdmin;
+  siswaForm.elements.kelas.disabled = isNotAdmin;
+  siswaForm.elements.kelompok.disabled = isNotAdmin;
+  siswaForm.elements.shift.disabled = isNotAdmin;
+  siswaForm.elements.nama_guru_quran.disabled = isNotAdmin;
+
+  const inputFields = [siswaForm.elements.nis, siswaForm.elements.nisn, siswaForm.elements.nama_siswa];
+  if (isNotAdmin) {
+    inputFields.forEach(el => el.classList.add("opacity-60", "bg-black/5"));
+  } else {
+    inputFields.forEach(el => el.classList.remove("opacity-60", "bg-black/5"));
+  }
+
   siswaForm.elements.nis.focus();
 }
 
@@ -854,7 +873,7 @@ async function loadAllMateri() {
 
 function renderSiswaRows(records) {
   if (!siswaTable) return;
-  const colspan = isAdmin() ? 10 : 9;
+  const colspan = 10;
 
   siswaTable.innerHTML = "";
 
@@ -937,8 +956,8 @@ function renderSiswaRows(records) {
     tdGuru.textContent = record.nama_guru_quran || "-";
     tr.appendChild(tdGuru);
 
-    // 10. Action column (Admin only)
-    if (isAdmin()) {
+    // 10. Action column (Admin, GPQ, GPAI)
+    if (isAdmin() || isGPQ() || isGPAI()) {
       const tdAction = document.createElement("td");
       tdAction.className = "px-4 py-4";
 
@@ -950,15 +969,17 @@ function renderSiswaRows(records) {
       editBtn.className = "rounded-[8px] border border-emeraldDeep/10 bg-white px-3 py-2 text-xs font-extrabold text-emeraldDeep transition hover:border-dateGold/50";
       editBtn.type = "button";
       editBtn.textContent = "Edit";
-
-      const deleteBtn = document.createElement("button");
-      deleteBtn.setAttribute("data-delete-siswa", record.id);
-      deleteBtn.className = "rounded-[8px] border border-red-200 bg-red-50 px-3 py-2 text-xs font-extrabold text-red-700 transition hover:bg-red-100";
-      deleteBtn.type = "button";
-      deleteBtn.textContent = "Hapus";
-
       divAction.appendChild(editBtn);
-      divAction.appendChild(deleteBtn);
+
+      if (isAdmin()) {
+        const deleteBtn = document.createElement("button");
+        deleteBtn.setAttribute("data-delete-siswa", record.id);
+        deleteBtn.className = "rounded-[8px] border border-red-200 bg-red-50 px-3 py-2 text-xs font-extrabold text-red-700 transition hover:bg-red-100";
+        deleteBtn.type = "button";
+        deleteBtn.textContent = "Hapus";
+        divAction.appendChild(deleteBtn);
+      }
+
       tdAction.appendChild(divAction);
       tr.appendChild(tdAction);
     }
@@ -1017,7 +1038,7 @@ function filterSiswaForCurrentRole(records) {
 
 async function loadSiswa() {
   if (!siswaTable) return;
-  const colspan = isAdmin() ? 10 : 9;
+  const colspan = 10;
 
   setSiswaStatus("Memuat data siswa...");
   siswaTable.innerHTML = "";
@@ -1692,8 +1713,8 @@ async function importTahfizhFile(event) {
   const file = event.target.files?.[0];
   if (!file) return;
 
-  if (!isAdmin()) {
-    setQuranImportStatus("Hanya Admin yang dapat import materi.", "error");
+  if (!["Admin", "GPQ", "GPAI"].includes(currentUser?.role)) {
+    setQuranImportStatus("Anda tidak memiliki akses untuk import materi.", "error");
     event.target.value = "";
     return;
   }
@@ -1732,8 +1753,8 @@ async function importSimpleMateriFile(event) {
   const category = event.target.dataset.simpleMateriImportFile;
   if (!file || !category) return;
 
-  if (!isAdmin()) {
-    setMateriStatus(category, "Hanya Admin yang dapat import materi.", "error");
+  if (!["Admin", "GPQ", "GPAI"].includes(currentUser?.role)) {
+    setMateriStatus(category, "Anda tidak memiliki akses untuk import materi.", "error");
     event.target.value = "";
     return;
   }
@@ -1809,24 +1830,37 @@ async function importSiswaFile(event) {
 async function submitSiswaForm(event) {
   event.preventDefault();
 
-  if (!isAdmin()) {
-    setSiswaFormStatus("Hanya Admin yang dapat mengelola siswa.", "error");
+  if (!isAdmin() && !isGPQ() && !isGPAI()) {
+    setSiswaFormStatus("Anda tidak memiliki akses untuk mengelola siswa.", "error");
     return;
   }
 
   const formData = new FormData(event.currentTarget);
   const recordId = siswaIdInput?.value || "";
-  const payload = {
-    nis: String(formData.get("nis") || "").trim(),
-    nisn: String(formData.get("nisn") || "").trim(),
-    nama_siswa: String(formData.get("nama_siswa") || "").trim(),
-    kelas: String(formData.get("kelas") || "").trim(),
-    kelompok: String(formData.get("kelompok") || "").trim(),
-    shift: String(formData.get("shift") || "").trim(),
-    status: String(formData.get("status") || "Reguler").trim(),
-    inklusif: String(formData.get("inklusif") || "Tidak").trim(),
-    nama_guru_quran: String(formData.get("nama_guru_quran") || "").trim()
-  };
+  let payload = {};
+
+  if (isAdmin()) {
+    payload = {
+      nis: String(formData.get("nis") || "").trim(),
+      nisn: String(formData.get("nisn") || "").trim(),
+      nama_siswa: String(formData.get("nama_siswa") || "").trim(),
+      kelas: String(formData.get("kelas") || "").trim(),
+      kelompok: String(formData.get("kelompok") || "").trim(),
+      shift: String(formData.get("shift") || "").trim(),
+      status: String(formData.get("status") || "Reguler").trim(),
+      inklusif: String(formData.get("inklusif") || "Tidak").trim(),
+      nama_guru_quran: String(formData.get("nama_guru_quran") || "").trim()
+    };
+  } else {
+    if (!recordId) {
+      setSiswaFormStatus("Hanya Admin yang dapat menambah siswa baru.", "error");
+      return;
+    }
+    payload = {
+      status: String(formData.get("status") || "Reguler").trim(),
+      inklusif: String(formData.get("inklusif") || "Tidak").trim()
+    };
+  }
 
   siswaFormSubmit.disabled = true;
   siswaFormSubmit.classList.add("cursor-wait", "opacity-70");
@@ -1884,8 +1918,8 @@ async function submitMateriForm(event) {
   const formData = new FormData(form);
   const submitButton = materiFormSubmit || form.querySelector("button[type='submit']");
 
-  if (!isAdmin()) {
-    setMateriFormStatus("Hanya Admin yang dapat menyimpan materi.", "error");
+  if (!["Admin", "GPQ", "GPAI"].includes(currentUser?.role)) {
+    setMateriFormStatus("Anda tidak memiliki akses untuk menyimpan materi.", "error");
     return;
   }
 
@@ -1939,8 +1973,8 @@ async function submitMateriForm(event) {
 }
 
 async function deleteMateri(recordId, category) {
-  if (!isAdmin()) {
-    setMateriStatus(category, "Hanya Admin yang dapat menghapus materi.", "error");
+  if (!["Admin", "GPQ", "GPAI"].includes(currentUser?.role)) {
+    setMateriStatus(category, "Anda tidak memiliki akses untuk menghapus materi.", "error");
     return;
   }
 
@@ -2335,15 +2369,19 @@ async function bootDashboard() {
     if (userRole === "GPQ") {
       adminOnlyElements.forEach((element) => element.remove());
       gpaiOnlyElements.forEach((element) => element.remove());
-      const allowedPaths = ["/dashboard", "/", "/siswa", "/tahfizh-quran", "/bilqolam", "/doa-harian", "/laporan"];
+      const allowedPaths = ["/dashboard", "/", "/siswa", "/tahfizh-quran", "/bilqolam", "/laporan"];
       if (!allowedPaths.includes(window.location.pathname)) {
         window.location.href = "/dashboard";
         return;
       }
     } else if (userRole === "GPAI") {
       adminOnlyElements.forEach((element) => element.remove());
-      gpqOnlyElements.forEach((element) => element.remove());
-      const allowedPaths = ["/dashboard", "/", "/siswa", "/tathbiq-ibadah", "/laporan"];
+      gpqOnlyElements.forEach((element) => {
+        if (element.getAttribute("href") === "/bilqolam") {
+          element.remove();
+        }
+      });
+      const allowedPaths = ["/dashboard", "/", "/siswa", "/tathbiq-ibadah", "/tahfizh-quran", "/doa-harian", "/laporan"];
       if (!allowedPaths.includes(window.location.pathname)) {
         window.location.href = "/dashboard";
         return;
@@ -2532,6 +2570,139 @@ laporanTable?.addEventListener("click", (event) => {
   if (editSaranBtn) {
     openSaranModal(editSaranBtn.dataset.editSaran);
   }
+});
+
+function downloadUserTemplate() {
+  if (!window.XLSX) {
+    setUsersStatus("Library pembuat template belum termuat. Jalankan ulang server Node.js.", "error");
+    return;
+  }
+
+  const worksheet = XLSX.utils.json_to_sheet([
+    {
+      "Nama": "Ahmad Guru",
+      "Nama Lengkap": "Ahmad Guru, S.Pd.I",
+      "NIY": "123456789",
+      "Email": "ahmad@sdanaksaleh.sch.id",
+      "Role": "GPAI"
+    },
+    {
+      "Nama": "Siti Quran",
+      "Nama Lengkap": "Siti Quran, S.Pd",
+      "NIY": "987654321",
+      "Email": "siti@sdanaksaleh.sch.id",
+      "Role": "GPQ"
+    }
+  ]);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "User");
+
+  const data = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  downloadBlob(
+    new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }),
+    "template-user.xlsx"
+  );
+  setUsersStatus("Template Excel berhasil diunduh.", "success");
+}
+
+function buildUserImportPayload(row) {
+  return {
+    name: getImportValue(row, ["NAMA", "Nama", "Name"]),
+    nama_lengkap: getImportValue(row, ["NAMA LENGKAP", "Nama Lengkap"]),
+    niy: String(getImportValue(row, ["NIY", "niy", "Niy"]) || ""),
+    email: getImportValue(row, ["EMAIL", "Email", "email"]),
+    role: getImportValue(row, ["ROLE", "Role", "role"]),
+    verified: true
+  };
+}
+
+function parseUserWorkbook(workbook) {
+  const sheetName = safeGet(workbook.SheetNames, 0);
+  const firstSheet = safeGet(workbook.Sheets, sheetName);
+  const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: "", raw: false });
+
+  return rows
+    .map(buildUserImportPayload)
+    .filter((payload) => payload.name && payload.email && payload.role);
+}
+
+async function upsertUserPayloads(payloads) {
+  const existingRecords = usersCache || [];
+  const existingByEmail = new Map(existingRecords.map((record) => [record.email.toLowerCase(), record]));
+  let created = 0;
+  let updated = 0;
+
+  for (const payload of payloads) {
+    const existing = existingByEmail.get(payload.email.toLowerCase());
+
+    const isRoleAdmin = payload.role === "Admin";
+    const defaultPassword = isRoleAdmin ? "4n4k54l3H" : "ansal123";
+
+    if (existing) {
+      // Update
+      await pb.collection("users").update(existing.id, {
+        name: payload.name,
+        nama_lengkap: payload.nama_lengkap,
+        niy: payload.niy,
+        role: payload.role
+      });
+      updated++;
+    } else {
+      // Create
+      payload.password = defaultPassword;
+      payload.passwordConfirm = defaultPassword;
+      
+      await pb.collection("users").create(payload);
+      created++;
+    }
+  }
+
+  return { created, updated };
+}
+
+async function importUserFile(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  if (!isAdmin()) {
+    setUsersStatus("Hanya Admin yang dapat import user.", "error");
+    event.target.value = "";
+    return;
+  }
+
+  if (!window.XLSX) {
+    setUsersStatus("Library pembaca Excel belum termuat. Jalankan ulang server Node.js.", "error");
+    event.target.value = "";
+    return;
+  }
+
+  setUsersStatus(`Membaca ${file.name}...`);
+
+  try {
+    const workbook = XLSX.read(await file.arrayBuffer(), { type: "array" });
+    const payloads = parseUserWorkbook(workbook);
+
+    if (!payloads.length) {
+      setUsersStatus("Tidak ada baris user yang bisa diimport. Pastikan Nama, Email, dan Role terisi.", "error");
+      return;
+    }
+
+    const { created, updated } = await upsertUserPayloads(payloads);
+
+    await loadUsers();
+    setUsersStatus(`Import selesai: ${created} user baru, ${updated} user diperbarui.`, "success");
+  } catch (error) {
+    console.error("Import error", error);
+    const message = error?.response?.message || "File belum bisa diimport. Pastikan format sesuai template.";
+    setUsersStatus(message, "error");
+  } finally {
+    event.target.value = "";
+  }
+}
+
+userImportFile?.addEventListener("change", importUserFile);
+downloadUserTemplateButtons.forEach((button) => {
+  button.addEventListener("click", () => downloadUserTemplate());
 });
 
 bootDashboard();

@@ -192,9 +192,15 @@ async function generatePDF(siswaId) {
         const fashahahVal = bilqolamRecord.fashahah;
         const laguVal = bilqolamRecord.lagu;
 
-        tableBody.push(['1.', 'Tajwid', { content: tajwidVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tajwidVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Tajwid', null, tajwidVal)]);
-        tableBody.push(['2.', 'Fashahah', { content: fashahahVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(fashahahVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Fashahah', null, fashahahVal)]);
-        tableBody.push(['3.', 'Lagu', { content: laguVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(laguVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Lagu', null, laguVal)]);
+        if (student.inklusif === "Ya") {
+            tableBody.push(['1.', 'Tajwid', { content: tajwidVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tajwidVal), styles: { halign: 'center', fontStyle: 'bold' } }, { content: student.deskripsi_bilqolam || "-", rowSpan: 3, styles: { valign: 'middle', halign: 'justify' } }]);
+            tableBody.push(['2.', 'Fashahah', { content: fashahahVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(fashahahVal), styles: { halign: 'center', fontStyle: 'bold' } }]);
+            tableBody.push(['3.', 'Lagu', { content: laguVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(laguVal), styles: { halign: 'center', fontStyle: 'bold' } }]);
+        } else {
+            tableBody.push(['1.', 'Tajwid', { content: tajwidVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tajwidVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Tajwid', null, tajwidVal)]);
+            tableBody.push(['2.', 'Fashahah', { content: fashahahVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(fashahahVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Fashahah', null, fashahahVal)]);
+            tableBody.push(['3.', 'Lagu', { content: laguVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(laguVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Lagu', null, laguVal)]);
+        }
     }
 
     // 2. DOA
@@ -207,13 +213,18 @@ async function generatePDF(siswaId) {
     doaRecords.forEach((record, index) => {
         const materiName = materiMap.get(record.materi)?.materi || "Materi";
         const score = record.nilai;
-        tableBody.push([
+        let row = [
             (index + 1) + '.',
             materiName,
             { content: score ?? '-', styles: { halign: 'center' } },
-            { content: getPredicate(score), styles: { halign: 'center', fontStyle: 'bold' } },
-            getDescription('Doa', materiName, score)
-        ]);
+            { content: getPredicate(score), styles: { halign: 'center', fontStyle: 'bold' } }
+        ];
+        if (student.inklusif === "Ya") {
+            if (index === 0) row.push({ content: student.deskripsi_doa || "-", rowSpan: doaRecords.length, styles: { valign: 'middle', halign: 'justify' } });
+        } else {
+            row.push(getDescription('Doa', materiName, score));
+        }
+        tableBody.push(row);
     });
 
     // 3. TAHFIZH
@@ -226,6 +237,24 @@ async function generatePDF(siswaId) {
     ]);
 
     let tIdx = 1;
+    let isInclusive = student.inklusif === "Ya";
+    let customDeskripsi = student.deskripsi_tahfizh || "-";
+
+    let totalTahfizhRows = 0;
+    tahfizhRecords.forEach((record) => {
+        const materiData = materiMap.get(record.materi);
+        const materiName = materiData?.materi || "Materi";
+        if (materiName.toLowerCase().includes("muroja")) totalTahfizhRows++;
+        else if (record.hafal_1 !== undefined) {
+            if (record.hafal_1 || record.nilai_1) totalTahfizhRows++;
+            if (record.hafal_2 || record.nilai_2) totalTahfizhRows++;
+            if (record.hafal_3 || record.nilai_3) totalTahfizhRows++;
+        } else {
+            totalTahfizhRows++;
+        }
+    });
+
+    let currentRowCount = 0;
 
     tahfizhRecords.forEach((record) => {
         const materiData = materiMap.get(record.materi);
@@ -240,12 +269,18 @@ async function generatePDF(siswaId) {
             else if (scoreNum > 0) predikat = "MAQBUL";
 
             const desc = `Ananda mendapat predikat ${predikat} dalam ${materiName}`;
-            tableBody.push([
+            let row = [
                 (tIdx++) + '.',
                 materiName,
-                { content: predikat, colSpan: 2, styles: { halign: 'center', fontStyle: 'bold' } },
-                desc
-            ]);
+                { content: predikat, colSpan: 2, styles: { halign: 'center', fontStyle: 'bold' } }
+            ];
+            if (isInclusive) {
+                if (currentRowCount === 0) row.push({ content: customDeskripsi, rowSpan: totalTahfizhRows, styles: { valign: 'middle', halign: 'justify' } });
+            } else {
+                row.push(desc);
+            }
+            tableBody.push(row);
+            currentRowCount++;
             return;
         }
 
@@ -258,12 +293,18 @@ async function generatePDF(siswaId) {
             criterias.forEach((c) => {
                 const numText = c.hafal || "-";
                 const desc = getDescription('Tahfizh', materiName, c.nilai);
-                tableBody.push([
+                let row = [
                     (tIdx++) + '.',
                     `Q.S ${materiName}`,
-                    { content: numText, colSpan: 2, styles: { halign: 'center' } },
-                    desc
-                ]);
+                    { content: numText, colSpan: 2, styles: { halign: 'center' } }
+                ];
+                if (isInclusive) {
+                    if (currentRowCount === 0) row.push({ content: customDeskripsi, rowSpan: totalTahfizhRows, styles: { valign: 'middle', halign: 'justify' } });
+                } else {
+                    row.push(desc);
+                }
+                tableBody.push(row);
+                currentRowCount++;
             });
         } else {
             const totalAyat = Number(materiData?.jumlah_ayat) || 0;
@@ -276,12 +317,18 @@ async function generatePDF(siswaId) {
             }
             
             const desc = getDescription('Tahfizh', materiName, percentScore);
-            tableBody.push([
+            let row = [
                 (tIdx++) + '.',
                 `Q.S ${materiName}`,
-                { content: numText, colSpan: 2, styles: { halign: 'center' } },
-                desc
-            ]);
+                { content: numText, colSpan: 2, styles: { halign: 'center' } }
+            ];
+            if (isInclusive) {
+                if (currentRowCount === 0) row.push({ content: customDeskripsi, rowSpan: totalTahfizhRows, styles: { valign: 'middle', halign: 'justify' } });
+            } else {
+                row.push(desc);
+            }
+            tableBody.push(row);
+            currentRowCount++;
         }
     });
 
@@ -297,13 +344,18 @@ async function generatePDF(siswaId) {
     tathbiqRecords.forEach((record, index) => {
         const materiName = materiMap.get(record.materi)?.materi || "Materi";
         const score = record.nilai;
-        tableBody.push([
+        let row = [
             (index + 1) + '.',
             materiName,
             { content: score ?? '-', styles: { halign: 'center' } },
-            { content: getPredicate(score), styles: { halign: 'center', fontStyle: 'bold' } },
-            getDescription('Ibadah', materiName, score)
-        ]);
+            { content: getPredicate(score), styles: { halign: 'center', fontStyle: 'bold' } }
+        ];
+        if (student.inklusif === "Ya") {
+            if (index === 0) row.push({ content: student.deskripsi_tathbiq || "-", rowSpan: tathbiqRecords.length, styles: { valign: 'middle', halign: 'justify' } });
+        } else {
+            row.push(getDescription('Ibadah', materiName, score));
+        }
+        tableBody.push(row);
     });
 
     doc.autoTable({

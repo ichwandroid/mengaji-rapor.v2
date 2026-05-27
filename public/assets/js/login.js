@@ -1,6 +1,8 @@
-const loginWithGoogleButton = document.querySelector("[data-google-login]");
+const loginForm = document.querySelector("[data-login-form]");
+const emailInput = document.querySelector("[data-login-email]");
+const submitButton = document.querySelector("[data-login-submit]");
 const loginStatus = document.querySelector("[data-login-status]");
-const pocketBaseUrl = "http://127.0.0.1:8090";
+const pocketBaseUrl = `${window.location.protocol}//${window.location.hostname}:8090`;
 const authCollection = "users";
 
 function setLoginStatus(message, tone = "info") {
@@ -13,59 +15,59 @@ function setLoginStatus(message, tone = "info") {
   );
 }
 
-function setGoogleButtonLoading(isLoading) {
-  if (!loginWithGoogleButton) return;
+function setFormLoading(isLoading) {
+  if (!submitButton) return;
 
-  loginWithGoogleButton.disabled = isLoading;
-  loginWithGoogleButton.classList.toggle("cursor-wait", isLoading);
-  loginWithGoogleButton.classList.toggle("opacity-70", isLoading);
+  submitButton.disabled = isLoading;
+  submitButton.classList.toggle("cursor-wait", isLoading);
+  submitButton.classList.toggle("opacity-70", isLoading);
+  
+  if (emailInput) emailInput.disabled = isLoading;
 }
 
-if (loginWithGoogleButton && window.PocketBase) {
+if (loginForm && window.PocketBase) {
   const pb = new PocketBase(pocketBaseUrl);
 
-  loginWithGoogleButton.addEventListener("click", () => {
-    const authPopup = window.open("", "google_oauth", "width=520,height=720");
+  const handleSuccess = (authData) => {
+    setLoginStatus(`Login berhasil. Selamat datang, ${authData.record.name || authData.record.email}.`, "success");
+    window.setTimeout(() => {
+      window.location.href = "/dashboard";
+    }, 800);
+  };
 
-    setGoogleButtonLoading(true);
-    setLoginStatus("Membuka login Google...");
+  loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    
+    const email = emailInput?.value || "";
+    
+    if (!email) {
+      setLoginStatus("Email atau username harus diisi.", "error");
+      return;
+    }
 
+    setFormLoading(true);
+    setLoginStatus("Sedang masuk...");
+
+    // 1. Coba login dengan password guru biasa
     pb.collection(authCollection)
-      .authWithOAuth2({
-        provider: "google",
-        scopes: ["email", "profile"],
-        createData: {
-          role: "-"
-        },
-        urlCallback: (url) => {
-          if (authPopup) {
-            authPopup.location.href = url;
-            authPopup.focus();
-            return;
-          }
-
-          window.location.href = url;
-        }
-      })
+      .authWithPassword(email, "ansal123")
       .then((authData) => {
-        setLoginStatus(`Login berhasil. Selamat datang, ${authData.record.name || authData.record.email}.`, "success");
-        window.setTimeout(() => {
-          window.location.href = "/dashboard";
-        }, 800);
+        handleSuccess(authData);
       })
-      .catch((error) => {
-        if (authPopup && !authPopup.closed) {
-          authPopup.close();
-        }
-
-        console.error("Google OAuth login gagal:", error);
-        const detail = error?.response?.message || error?.message || "Login Google belum berhasil.";
-        setLoginStatus(`${detail} Pastikan PocketBase berjalan di ${pocketBaseUrl}.`, "error");
-      })
-      .finally(() => {
-        setGoogleButtonLoading(false);
+      .catch(() => {
+        // 2. Jika gagal, coba login dengan password Admin
+        pb.collection(authCollection)
+          .authWithPassword(email, "4n4k54l3H")
+          .then((authData) => {
+            handleSuccess(authData);
+          })
+          .catch((error) => {
+            console.error("Login gagal:", error);
+            setLoginStatus("Akun tidak ditemukan atau belum didaftarkan.", "error");
+            setFormLoading(false);
+          });
       });
   });
-} else if (loginWithGoogleButton) {
+} else if (loginForm) {
   setLoginStatus("SDK PocketBase belum termuat. Coba refresh halaman.", "error");
 }

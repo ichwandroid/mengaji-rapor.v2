@@ -164,7 +164,7 @@ async function loadInitialData() {
   setBilqolamStatus("Memuat data...");
   try {
     const [siswaRecords, bilqolamRecords] = await Promise.all([
-      fetchSiswaRecords(),
+      fetchSiswaRecords().then(filterSiswaForCurrentRole),
       pb.collection("bilqolam").getFullList({ sort: "-created" })
     ]);
     
@@ -208,6 +208,23 @@ function openBilqolamModal(siswaId) {
     bilqolamForm.elements.lagu.value = record.lagu ?? "";
   }
   
+  const deskripsiContainer = document.querySelector("[data-deskripsi-container]");
+  const deskripsiInput = bilqolamForm.elements.deskripsi_bilqolam;
+  
+  if (siswa.inklusif === "Ya") {
+    if (deskripsiContainer) deskripsiContainer.classList.remove("hidden");
+    if (deskripsiInput) {
+      deskripsiInput.value = siswa.deskripsi_bilqolam || "";
+      deskripsiInput.required = true;
+    }
+  } else {
+    if (deskripsiContainer) deskripsiContainer.classList.add("hidden");
+    if (deskripsiInput) {
+      deskripsiInput.value = "";
+      deskripsiInput.required = false;
+    }
+  }
+  
   bilqolamFormStatus?.classList.add("hidden");
   bilqolamModal.classList.remove("hidden");
   bilqolamModal.classList.add("flex");
@@ -236,11 +253,26 @@ async function submitBilqolamForm(event) {
   setBilqolamFormStatus(recordId ? "Menyimpan perubahan..." : "Menyimpan data...");
 
   try {
+    const promises = [];
     if (recordId) {
-      await pb.collection("bilqolam").update(recordId, payload);
+      promises.push(pb.collection("bilqolam").update(recordId, payload));
     } else {
-      await pb.collection("bilqolam").create(payload);
+      promises.push(pb.collection("bilqolam").create(payload));
     }
+
+    const siswa = bilqolamSiswaCache.find(s => s.id === siswaId);
+    if (siswa && siswa.inklusif === "Ya") {
+      const deskripsi = bilqolamForm.elements.deskripsi_bilqolam.value || "";
+      promises.push(
+        pb.collection("siswa").update(siswaId, { deskripsi_bilqolam: deskripsi }, { requestKey: null })
+          .then(updatedSiswa => {
+             const idx = bilqolamSiswaCache.findIndex(s => s.id === siswaId);
+             if (idx !== -1) bilqolamSiswaCache[idx] = updatedSiswa;
+          })
+      );
+    }
+    
+    await Promise.all(promises);
     setBilqolamFormStatus("Data berhasil disimpan.", "success");
     await reloadBilqolamData();
     setTimeout(closeBilqolamModal, 450);
