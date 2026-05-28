@@ -19,6 +19,8 @@ function getDescription(category, name, score) {
     if (category === 'Tajwid') return `Ananda ${quality} memahami tajwid dalam bacaan`;
     if (category === 'Fashahah') return `Ananda ${quality} melafalkan bacaan dengan jelas`;
     if (category === 'Lagu') return `Ananda ${quality} memahami nada bacaan`;
+    if (category === 'Tadarus') return `Ananda ${quality} dalam membaca Al-Qur'an secara tartil`;
+    if (category === 'Bahasa Arab') return `Ananda ${quality} dalam memahami bahasa Arab`;
 
     if (category === 'Doa' || category === 'Ibadah') {
         let lancar = '';
@@ -158,15 +160,15 @@ async function generatePDF(siswaId) {
     // Line separator
     doc.setLineWidth(0.5);
     doc.line(14, 33, 196, 33);
-    doc.setLineWidth(0.1);
-    doc.line(14, 34, 196, 34);
+    // doc.setLineWidth(0.1);
+    // doc.line(14, 34, 196, 34);
 
     doc.setFontSize(13);
     doc.setFont(undefined, 'bold');
-    doc.text('RELIGIOUS REPORT', 105, 41, { align: 'center' });
+    doc.text('RELIGIOUS REPORT', 105, 38, { align: 'center' });
 
     // Student Info
-    let yPos = 47;
+    let yPos = 43;
     doc.setFontSize(11);
     doc.setFont(undefined, 'bold');
     doc.text(`Nama`, 15, yPos);
@@ -174,14 +176,14 @@ async function generatePDF(siswaId) {
     doc.text(`No. Induk`, 130, yPos);
     doc.text(`: ${studentNis}`, 160, yPos);
 
-    yPos += 6;
+    yPos += 5;
     doc.setFont(undefined, 'bold');
     doc.text(`Kelas`, 15, yPos);
     doc.text(`: ${studentClass}`, 30, yPos);
     doc.text(`Tahun Ajaran`, 130, yPos);
     doc.text(`: 2025/2026 (Genap)`, 160, yPos);
 
-    yPos += 6;
+    yPos += 5;
     doc.setFontSize(9);
     doc.setFont(undefined, 'bold');
     doc.text('I. PENCAPAIAN KOMPETENSI', 14, yPos);
@@ -194,25 +196,45 @@ async function generatePDF(siswaId) {
     // 1. BILQOLAM
     const bilqolamRecord = bilqolamRecords[0];
     const bilqLetter = String.fromCharCode(sectionCode++);
-    const bilqTitle = bilqolamRecord?.jilid ? `BILQOLAM ${bilqolamRecord.jilid.toUpperCase()}` : 'BILQOLAM';
+    let bilqTitle = 'BILQOLAM';
+    if (bilqolamRecord?.jilid) {
+        if (student.status === "Pasca") {
+            bilqTitle = bilqolamRecord.jilid.toUpperCase();
+        } else {
+            bilqTitle = `BILQOLAM ${bilqolamRecord.jilid.toUpperCase()}`;
+        }
+    }
     tableBody.push([
         { content: bilqLetter, styles: { fontStyle: 'bold', fillColor: [229, 231, 235] } },
         { content: bilqTitle, colSpan: 4, styles: { fontStyle: 'bold', fillColor: [229, 231, 235] } }
     ]);
 
     if (bilqolamRecord) {
-        const tajwidVal = bilqolamRecord.tajwid;
-        const fashahahVal = bilqolamRecord.fashahah;
-        const laguVal = bilqolamRecord.lagu;
-
-        if (student.inklusif === "Ya") {
-            tableBody.push(['1.', 'Tajwid', { content: tajwidVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tajwidVal), styles: { halign: 'center', fontStyle: 'bold' } }, { content: student.deskripsi_bilqolam || "-", rowSpan: 3, styles: { valign: 'middle', halign: 'justify' } }]);
-            tableBody.push(['2.', 'Fashahah', { content: fashahahVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(fashahahVal), styles: { halign: 'center', fontStyle: 'bold' } }]);
-            tableBody.push(['3.', 'Lagu', { content: laguVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(laguVal), styles: { halign: 'center', fontStyle: 'bold' } }]);
+        if (student.status === "Pasca") {
+            const tadarusVal = bilqolamRecord.tadarus;
+            const arabVal = bilqolamRecord.bahasa_arab;
+            
+            if (student.inklusif === "Ya") {
+                tableBody.push(['1.', "Tadarus Al-Qur'an", { content: tadarusVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tadarusVal), styles: { halign: 'center', fontStyle: 'bold' } }, { content: student.deskripsi_bilqolam || "-", rowSpan: 2, styles: { valign: 'middle', halign: 'justify' } }]);
+                tableBody.push(['2.', 'Bahasa Arab', { content: arabVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(arabVal), styles: { halign: 'center', fontStyle: 'bold' } }]);
+            } else {
+                tableBody.push(['1.', "Tadarus Al-Qur'an", { content: tadarusVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tadarusVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Tadarus', null, tadarusVal)]);
+                tableBody.push(['2.', 'Bahasa Arab', { content: arabVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(arabVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Bahasa Arab', null, arabVal)]);
+            }
         } else {
-            tableBody.push(['1.', 'Tajwid', { content: tajwidVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tajwidVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Tajwid', null, tajwidVal)]);
-            tableBody.push(['2.', 'Fashahah', { content: fashahahVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(fashahahVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Fashahah', null, fashahahVal)]);
-            tableBody.push(['3.', 'Lagu', { content: laguVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(laguVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Lagu', null, laguVal)]);
+            const tajwidVal = bilqolamRecord.tajwid;
+            const fashahahVal = bilqolamRecord.fashahah;
+            const laguVal = bilqolamRecord.lagu;
+
+            if (student.inklusif === "Ya") {
+                tableBody.push(['1.', 'Tajwid', { content: tajwidVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tajwidVal), styles: { halign: 'center', fontStyle: 'bold' } }, student.deskripsi_bilqolam_tajwid || "-"]);
+                tableBody.push(['2.', 'Fashahah', { content: fashahahVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(fashahahVal), styles: { halign: 'center', fontStyle: 'bold' } }, student.deskripsi_bilqolam_fashahah || "-"]);
+                tableBody.push(['3.', 'Lagu', { content: laguVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(laguVal), styles: { halign: 'center', fontStyle: 'bold' } }, student.deskripsi_bilqolam_lagu || "-"]);
+            } else {
+                tableBody.push(['1.', 'Tajwid', { content: tajwidVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tajwidVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Tajwid', null, tajwidVal)]);
+                tableBody.push(['2.', 'Fashahah', { content: fashahahVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(fashahahVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Fashahah', null, fashahahVal)]);
+                tableBody.push(['3.', 'Lagu', { content: laguVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(laguVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Lagu', null, laguVal)]);
+            }
         }
     }
 
@@ -233,7 +255,7 @@ async function generatePDF(siswaId) {
             { content: getPredicate(score), styles: { halign: 'center', fontStyle: 'bold' } }
         ];
         if (student.inklusif === "Ya") {
-            if (index === 0) row.push({ content: student.deskripsi_doa || "-", rowSpan: doaRecords.length, styles: { valign: 'middle', halign: 'justify' } });
+            row.push({ content: record.deskripsi_inklusi || "-", styles: { valign: 'middle', halign: 'justify' } });
         } else {
             row.push(getDescription('Doa', materiName, score));
         }
@@ -290,7 +312,7 @@ async function generatePDF(siswaId) {
                 { content: predikat, colSpan: 2, styles: { halign: 'center', fontStyle: 'bold' } }
             ];
             if (isInclusive) {
-                if (currentRowCount === 0) row.push({ content: customDeskripsi, rowSpan: totalTahfizhRows, styles: { valign: 'middle', halign: 'justify' } });
+                row.push({ content: record.deskripsi_inklusi || "-", styles: { valign: 'middle', halign: 'justify' } });
             } else {
                 row.push(desc);
             }
@@ -314,7 +336,7 @@ async function generatePDF(siswaId) {
                     { content: numText, colSpan: 2, styles: { halign: 'center' } }
                 ];
                 if (isInclusive) {
-                    if (currentRowCount === 0) row.push({ content: customDeskripsi, rowSpan: totalTahfizhRows, styles: { valign: 'middle', halign: 'justify' } });
+                    row.push({ content: record.deskripsi_inklusi || "-", styles: { valign: 'middle', halign: 'justify' } });
                 } else {
                     row.push(desc);
                 }
@@ -338,7 +360,7 @@ async function generatePDF(siswaId) {
                 { content: numText, colSpan: 2, styles: { halign: 'center' } }
             ];
             if (isInclusive) {
-                if (currentRowCount === 0) row.push({ content: customDeskripsi, rowSpan: totalTahfizhRows, styles: { valign: 'middle', halign: 'justify' } });
+                row.push({ content: record.deskripsi_inklusi || "-", styles: { valign: 'middle', halign: 'justify' } });
             } else {
                 row.push(desc);
             }
@@ -366,7 +388,7 @@ async function generatePDF(siswaId) {
             { content: getPredicate(score), styles: { halign: 'center', fontStyle: 'bold' } }
         ];
         if (student.inklusif === "Ya") {
-            if (index === 0) row.push({ content: student.deskripsi_tathbiq || "-", rowSpan: tathbiqRecords.length, styles: { valign: 'middle', halign: 'justify' } });
+            row.push({ content: record.deskripsi_inklusi || "-", styles: { valign: 'middle', halign: 'justify' } });
         } else {
             row.push(getDescription('Ibadah', materiName, score));
         }
@@ -439,7 +461,7 @@ async function generatePDF(siswaId) {
             ]
         ],
         theme: 'grid',
-        styles: { fontSize: 9, cellPadding: 1.5, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: 0, valign: 'middle' },
+        styles: { fontSize: 9, cellPadding: 1.8, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: 0, valign: 'middle' },
         margin: { left: 14, right: 14, bottom: 20, top: 20 },
         didDrawPage: function (data) {
             const pageHeight = doc.internal.pageSize.height;

@@ -298,32 +298,61 @@
               <option value="Daurah">Daurah</option>
             </select>
           </label>
-          <label class="block">
-            <span class="text-sm font-bold text-ink/70">Tajwid</span>
-            <input name="tajwid"
-              class="mt-2 h-11 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
-              type="number" min="0" max="100" placeholder="Nilai Tajwid" required />
-          </label>
-        </div>
+          </div>
+          
+          <div data-standar-fields class="mt-3">
+            <label class="block">
+              <span class="text-sm font-bold text-ink/70">Tajwid</span>
+              <input name="tajwid"
+                class="mt-2 h-11 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+                type="number" min="0" max="100" placeholder="Nilai Tajwid" />
+            </label>
+            <div class="grid gap-3 sm:grid-cols-2 mt-3">
+              <label class="block">
+                <span class="text-sm font-bold text-ink/70">Fashahah</span>
+                <input name="fashahah"
+                  class="mt-2 h-11 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+                  type="number" min="0" max="100" placeholder="Nilai Fashahah" />
+              </label>
+              <label class="block">
+                <span class="text-sm font-bold text-ink/70">Lagu</span>
+                <input name="lagu"
+                  class="mt-2 h-11 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+                  type="number" min="0" max="100" placeholder="Nilai Lagu" />
+              </label>
+            </div>
+          </div>
 
-        <div class="grid gap-3 sm:grid-cols-2">
-          <label class="block">
-            <span class="text-sm font-bold text-ink/70">Fashahah</span>
-            <input name="fashahah"
-              class="mt-2 h-11 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
-              type="number" min="0" max="100" placeholder="Nilai Fashahah" required />
-          </label>
-          <label class="block">
-            <span class="text-sm font-bold text-ink/70">Lagu</span>
-            <input name="lagu"
-              class="mt-2 h-11 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
-              type="number" min="0" max="100" placeholder="Nilai Lagu" required />
-          </label>
-        </div>
+          <div data-pasca-fields class="hidden mt-3">
+            <div class="grid gap-3 sm:grid-cols-2">
+              <label class="block">
+                <span class="text-sm font-bold text-ink/70">Tadarus Al-Qur'an</span>
+                <input name="tadarus"
+                  class="mt-2 h-11 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+                  type="number" min="0" max="100" placeholder="Nilai Tadarus" />
+              </label>
+              <label class="block">
+                <span class="text-sm font-bold text-ink/70">Bahasa Arab</span>
+                <input name="bahasa_arab"
+                  class="mt-2 h-11 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+                  type="number" min="0" max="100" placeholder="Nilai B. Arab" />
+              </label>
+            </div>
+          </div>
 
-        <div data-deskripsi-container class="hidden mt-4 space-y-2">
-          <label class="block text-sm font-bold text-ink/70">Deskripsi Bilqolam (Siswa Inklusif)</label>
-          <textarea name="deskripsi_bilqolam" rows="3" class="w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 p-3 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15" placeholder="Tuliskan perkembangan Bilqolam ananda di sini..."></textarea>
+        <div data-deskripsi-container class="hidden mt-4 space-y-4">
+          <div>
+            <label class="block text-sm font-bold text-ink/70">Deskripsi Tajwid (Siswa Inklusif)</label>
+            <textarea name="deskripsi_bilqolam_tajwid" rows="2" class="mt-2 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 p-3 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15" placeholder="Tuliskan perkembangan Tajwid ananda..."></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-ink/70">Deskripsi Fashahah (Siswa Inklusif)</label>
+            <textarea name="deskripsi_bilqolam_fashahah" rows="2" class="mt-2 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 p-3 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15" placeholder="Tuliskan perkembangan Fashahah ananda..."></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-ink/70">Deskripsi Lagu (Siswa Inklusif)</label>
+            <textarea name="deskripsi_bilqolam_lagu" rows="2" class="mt-2 w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 p-3 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15" placeholder="Tuliskan perkembangan Lagu ananda..."></textarea>
+          </div>
         </div>
 
         <p data-bilqolam-form-status class="hidden text-sm font-semibold"></p>

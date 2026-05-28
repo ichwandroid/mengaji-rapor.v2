@@ -257,6 +257,9 @@ function openTathbiqHarianModal(siswaId) {
       const isGraded = !!existingNilai;
       const score = isGraded ? existingNilai.nilai : "";
 
+      const rowContainer = document.createElement("div");
+      rowContainer.className = "flex flex-col gap-2";
+
       const label = document.createElement("label");
       label.className = `flex items-center gap-4 rounded-[8px] border border-emeraldDeep/10 bg-white p-4 transition hover:border-jade/50 cursor-pointer ${isGraded ? 'ring-2 ring-emeraldDeep/20' : ''}`;
 
@@ -325,7 +328,22 @@ function openTathbiqHarianModal(siswaId) {
         label.appendChild(hiddenInput);
       }
 
-      fragment.appendChild(label);
+      rowContainer.appendChild(label);
+
+      if (siswa.inklusif === "Ya") {
+        const descDiv = document.createElement("div");
+        descDiv.className = "pl-[52px] pr-4 pb-2"; 
+        const descTextarea = document.createElement("textarea");
+        descTextarea.name = `materi_deskripsi_${m.id}`;
+        descTextarea.rows = "2";
+        descTextarea.className = "w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 p-3 text-sm font-semibold outline-none transition focus:border-jade focus:ring-2 focus:ring-jade/15";
+        descTextarea.placeholder = `Deskripsi inklusi untuk ${m.materi}...`;
+        descTextarea.value = isGraded ? (existingNilai.deskripsi_inklusi || "") : "";
+        descDiv.appendChild(descTextarea);
+        rowContainer.appendChild(descDiv);
+      }
+
+      fragment.appendChild(rowContainer);
     });
 
     tathbiqIbadahList.appendChild(fragment);
@@ -370,6 +388,9 @@ async function submitTathbiqHarianForm(event) {
           materi: m.id,
           nilai: Number(score)
         };
+        if (siswa.inklusif === "Ya") {
+          payload.deskripsi_inklusi = formData.get(`materi_deskripsi_${m.id}`) || "";
+        }
         if (recordId) {
           promises.push(pb.collection("nilai_tathbiq").update(recordId, payload, { requestKey: null }));
         } else {
@@ -379,17 +400,6 @@ async function submitTathbiqHarianForm(event) {
         // Unchecked or score emptied -> delete the record
         promises.push(pb.collection("nilai_tathbiq").delete(recordId, { requestKey: null }));
       }
-    }
-
-    if (siswa.inklusif === "Ya") {
-      const deskripsi = formData.get("deskripsi_tathbiq") || "";
-      promises.push(
-        pb.collection("siswa").update(siswaId, { deskripsi_tathbiq: deskripsi }, { requestKey: null })
-          .then(updatedSiswa => {
-             const idx = tathbiqIbadahSiswaCache.findIndex(s => s.id === siswaId);
-             if (idx !== -1) tathbiqIbadahSiswaCache[idx] = updatedSiswa;
-          })
-      );
     }
 
     await Promise.all(promises);

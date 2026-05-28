@@ -216,22 +216,7 @@ function openDoaHarianModal(siswaId) {
   doaHarianSiswaIdInput.value = siswa.id;
   doaHarianModalTitle.textContent = `Penilaian Do'a: ${siswa.nama_siswa} (Kelas ${siswa.kelas || '-'})`;
   
-  const deskripsiContainer = document.querySelector("[data-deskripsi-container]");
-  const deskripsiInput = doaHarianForm.elements.deskripsi_doa;
-  
-  if (siswa.inklusif === "Ya") {
-    if (deskripsiContainer) deskripsiContainer.classList.remove("hidden");
-    if (deskripsiInput) {
-      deskripsiInput.value = siswa.deskripsi_doa || "";
-      deskripsiInput.required = true;
-    }
-  } else {
-    if (deskripsiContainer) deskripsiContainer.classList.add("hidden");
-    if (deskripsiInput) {
-      deskripsiInput.value = "";
-      deskripsiInput.required = false;
-    }
-  }
+
   
   const currentMonth = new Date().getMonth() + 1;
   const currentSemester = currentMonth >= 7 ? "Ganjil" : "Genap";
@@ -256,6 +241,9 @@ function openDoaHarianModal(siswaId) {
       const existingNilai = doaHarianCache.find(n => n.siswa === siswa.id && n.materi === m.id);
       const isGraded = !!existingNilai;
       const score = isGraded ? existingNilai.nilai : "";
+
+      const rowContainer = document.createElement("div");
+      rowContainer.className = "flex flex-col gap-2";
 
       const label = document.createElement("label");
       label.className = `flex items-center gap-4 rounded-[8px] border border-emeraldDeep/10 bg-white p-4 transition hover:border-jade/50 cursor-pointer ${isGraded ? 'ring-2 ring-emeraldDeep/20' : ''}`;
@@ -325,7 +313,22 @@ function openDoaHarianModal(siswaId) {
         label.appendChild(hiddenInput);
       }
 
-      fragment.appendChild(label);
+      rowContainer.appendChild(label);
+
+      if (siswa.inklusif === "Ya") {
+        const descDiv = document.createElement("div");
+        descDiv.className = "pl-[52px] pr-4 pb-2"; 
+        const descTextarea = document.createElement("textarea");
+        descTextarea.name = `materi_deskripsi_${m.id}`;
+        descTextarea.rows = "2";
+        descTextarea.className = "w-full rounded-[8px] border border-emeraldDeep/10 bg-white/80 p-3 text-sm font-semibold outline-none transition focus:border-jade focus:ring-2 focus:ring-jade/15";
+        descTextarea.placeholder = `Deskripsi inklusi untuk ${m.materi}...`;
+        descTextarea.value = isGraded ? (existingNilai.deskripsi_inklusi || "") : "";
+        descDiv.appendChild(descTextarea);
+        rowContainer.appendChild(descDiv);
+      }
+
+      fragment.appendChild(rowContainer);
     });
 
     doaHarianList.appendChild(fragment);
@@ -370,6 +373,9 @@ async function submitDoaHarianForm(event) {
           materi: m.id,
           nilai: Number(score)
         };
+        if (siswa.inklusif === "Ya") {
+          payload.deskripsi_inklusi = formData.get(`materi_deskripsi_${m.id}`) || "";
+        }
         if (recordId) {
           promises.push(pb.collection("nilai_doa").update(recordId, payload, { requestKey: null }));
         } else {
@@ -379,17 +385,6 @@ async function submitDoaHarianForm(event) {
         // Unchecked or score emptied -> delete the record
         promises.push(pb.collection("nilai_doa").delete(recordId, { requestKey: null }));
       }
-    }
-
-    if (siswa.inklusif === "Ya") {
-      const deskripsi = formData.get("deskripsi_doa") || "";
-      promises.push(
-        pb.collection("siswa").update(siswaId, { deskripsi_doa: deskripsi }, { requestKey: null })
-          .then(updatedSiswa => {
-             const idx = doaHarianSiswaCache.findIndex(s => s.id === siswaId);
-             if (idx !== -1) doaHarianSiswaCache[idx] = updatedSiswa;
-          })
-      );
     }
 
     await Promise.all(promises);
