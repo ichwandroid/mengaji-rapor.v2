@@ -277,11 +277,13 @@ async function generatePDF(siswaId) {
         if (isMurojaah) {
             let predikat = "-";
             const scoreNum = Number(record.nilai);
-            if (scoreNum >= 86) predikat = "JAYYID JIDDAN";
+            if (scoreNum >= 96) predikat = "MUMTAZ";
+            else if (scoreNum >= 86) predikat = "JAYYID JIDDAN";
             else if (scoreNum >= 71) predikat = "JAYYID";
             else if (scoreNum > 0) predikat = "MAQBUL";
 
-            const desc = `Ananda mendapat predikat ${predikat} dalam ${materiName}`;
+            const properPredikat = predikat !== "-" ? predikat.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : "-";
+            const desc = `Ananda mendapat predikat ${properPredikat} dalam ${materiName}`;
             let row = [
                 (tIdx++) + '.',
                 materiName,
