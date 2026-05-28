@@ -461,7 +461,7 @@ async function generatePDF(siswaId) {
             ]
         ],
         theme: 'grid',
-        styles: { fontSize: 9, cellPadding: 1, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: 0, valign: 'middle' },
+        styles: { fontSize: 9, cellPaddingRight: 1.9, cellPaddingLeft: 1, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: 0, valign: 'middle' },
         margin: { left: 14, right: 14, bottom: 20, top: 20 },
         didDrawPage: function (data) {
             const pageHeight = doc.internal.pageSize.height;
