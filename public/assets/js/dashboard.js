@@ -459,14 +459,14 @@ function resetMateriFilter(category) {
 }
 
 function sortMateriRecords(records) {
-  return [...records].sort((first, second) =>
-    [first.kelas, first.semester, first.materi, first.created]
-      .join(" ")
-      .localeCompare([second.kelas, second.semester, second.materi, second.created].join(" "), "id", {
+  return [...records].sort((first, second) => {
+    const sort1 = [first.kelas, first.semester, first.urutan || 999, first.materi, first.created].join(" ");
+    const sort2 = [second.kelas, second.semester, second.urutan || 999, second.materi, second.created].join(" ");
+    return sort1.localeCompare(sort2, "id", {
         numeric: true,
         sensitivity: "base"
-      })
-  );
+    });
+  });
 }
 
 function setMateriStatus(category, message, tone = "info") {
@@ -625,6 +625,7 @@ function openMateriModal(category, record = null) {
   materiIdInput.value = record?.id || "";
   materiForm.elements.category.value = category;
   materiForm.elements.kelas.value = record?.kelas || "";
+  if (materiForm.elements.urutan) materiForm.elements.urutan.value = record?.urutan || "";
   materiForm.elements.materi.value = record?.materi || "";
   materiForm.elements.semester.value = record?.semester || "Ganjil";
   materiModalTitle.textContent = `${record ? "Edit" : "Tambah"} ${safeGet(materiLabels, category) || "Materi"}`;
@@ -668,7 +669,7 @@ function closeMateriModal() {
 function renderMateriRows(category, records, emptyMessage = "Belum ada data materi.") {
   const table = getMateriTable(category);
   if (!table) return;
-  const colspan = category === "tahfizh-quran" ? 14 : 4;
+  const colspan = category === "tahfizh-quran" ? 15 : 4;
 
   table.innerHTML = "";
 
@@ -695,6 +696,12 @@ function renderMateriRows(category, records, emptyMessage = "Belum ada data mate
       tdKelas.className = "px-4 py-4 font-bold text-emeraldDeep";
       tdKelas.textContent = record.kelas;
       tr.appendChild(tdKelas);
+
+      // 1.5 Urutan
+      const tdUrutan = document.createElement("td");
+      tdUrutan.className = "px-4 py-4 font-semibold text-ink/65 text-center";
+      tdUrutan.textContent = record.urutan || "-";
+      tr.appendChild(tdUrutan);
 
       // 2. Materi
       const tdMateri = document.createElement("td");
@@ -1763,7 +1770,7 @@ async function importTahfizhFile(event) {
   const file = event.target.files?.[0];
   if (!file) return;
 
-  if (!["Admin", "GPQ", "GPAI"].includes(currentUser?.role)) {
+  if (!["Admin", "GPQ", "GPAI"].includes(pb?.authStore.record?.role)) {
     setQuranImportStatus("Anda tidak memiliki akses untuk import materi.", "error");
     event.target.value = "";
     return;
@@ -1803,7 +1810,7 @@ async function importSimpleMateriFile(event) {
   const category = event.target.dataset.simpleMateriImportFile;
   if (!file || !category) return;
 
-  if (!["Admin", "GPQ", "GPAI"].includes(currentUser?.role)) {
+  if (!["Admin", "GPQ", "GPAI"].includes(pb?.authStore.record?.role)) {
     setMateriStatus(category, "Anda tidak memiliki akses untuk import materi.", "error");
     event.target.value = "";
     return;
@@ -1968,7 +1975,7 @@ async function submitMateriForm(event) {
   const formData = new FormData(form);
   const submitButton = materiFormSubmit || form.querySelector("button[type='submit']");
 
-  if (!["Admin", "GPQ", "GPAI"].includes(currentUser?.role)) {
+  if (!["Admin", "GPQ", "GPAI"].includes(pb?.authStore.record?.role)) {
     setMateriFormStatus("Anda tidak memiliki akses untuk menyimpan materi.", "error");
     return;
   }
@@ -1981,6 +1988,7 @@ async function submitMateriForm(event) {
     const payload = {
       category,
       kelas: String(formData.get("kelas")).trim(),
+      urutan: Number(formData.get("urutan")) || 0,
       materi: String(formData.get("materi")).trim(),
       semester: formData.get("semester")
     };
@@ -2023,7 +2031,7 @@ async function submitMateriForm(event) {
 }
 
 async function deleteMateri(recordId, category) {
-  if (!["Admin", "GPQ", "GPAI"].includes(currentUser?.role)) {
+  if (!["Admin", "GPQ", "GPAI"].includes(pb?.authStore.record?.role)) {
     setMateriStatus(category, "Anda tidak memiliki akses untuk menghapus materi.", "error");
     return;
   }

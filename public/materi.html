@@ -214,6 +214,7 @@
                     <thead class="bg-emeraldDeep text-white">
                       <tr>
                         <th class="px-4 py-3 font-bold" rowspan="2">Kelas</th>
+                        <th class="px-4 py-3 font-bold" rowspan="2">Urutan</th>
                         <th class="px-4 py-3 font-bold" rowspan="2">Materi</th>
                         <th class="px-4 py-3 font-bold" rowspan="2">Semester</th>
                         <th class="px-4 py-3 font-bold" rowspan="2">Jumlah Ayat</th>
@@ -381,10 +382,13 @@
       <form data-materi-form class="mt-6 space-y-4">
         <input data-materi-id name="id" type="hidden" />
         <input name="category" type="hidden" />
-        <div class="grid gap-3 lg:grid-cols-[0.45fr_1fr_0.45fr]">
+        <div class="grid gap-3 lg:grid-cols-[0.45fr_0.3fr_1fr_0.45fr]">
           <input name="kelas"
             class="h-11 rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
             type="text" placeholder="Kelas" required />
+          <input name="urutan"
+            class="h-11 rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
+            type="number" min="1" placeholder="Urutan" />
           <input name="materi"
             class="h-11 rounded-[8px] border border-emeraldDeep/10 bg-white/80 px-4 text-sm font-semibold outline-none transition focus:border-jade focus:ring-4 focus:ring-jade/15"
             type="text" placeholder="Materi" required />

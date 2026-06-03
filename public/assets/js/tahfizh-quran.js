@@ -216,12 +216,12 @@ async function loadInitialData() {
   try {
     const [siswaRecords, materiRecords, nilaiRecords] = await Promise.all([
       fetchSiswaRecords().then(filterSiswaForCurrentRole),
-      pb.collection("materi").getFullList({ filter: 'category="tahfizh-quran"', sort: "materi" }),
+      pb.collection("materi").getFullList({ filter: 'category="tahfizh-quran"' }),
       pb.collection("nilai_tahfizh").getFullList({ sort: "-created" })
     ]);
     
     tahfizhQuranSiswaCache = siswaRecords;
-    tahfizhQuranMateriCache = materiRecords;
+    tahfizhQuranMateriCache = sortMateriRecords(materiRecords);
     tahfizhQuranCache = nilaiRecords;
     
     applyTahfizhQuranFilter();

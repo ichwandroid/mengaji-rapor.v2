@@ -1,19 +1,22 @@
 // Helpers for Grading & Description
-function getPredicate(score) {
+function getPredicate(score, isPasca = false) {
     const n = Number(score);
     if (isNaN(n)) return '';
     if (n >= 86) return 'B';
-    if (n >= 71) return 'C';
+    const cThreshold = isPasca ? 70 : 71;
+    if (n >= cThreshold) return 'C';
     return 'K';
 }
 
-function getDescription(category, name, score) {
+function getDescription(category, name, score, isPasca = false) {
     const numScore = Number(score);
     if (isNaN(numScore)) return '';
 
+    const cThreshold = isPasca ? 70 : 71;
+
     let quality = '';
     if (numScore >= 86) quality = 'mampu';
-    else if (numScore >= 71) quality = 'cukup mampu';
+    else if (numScore >= cThreshold) quality = 'cukup mampu';
     else quality = 'kurang mampu';
 
     if (category === 'Tajwid') return `Ananda ${quality} memahami tajwid dalam bacaan`;
@@ -25,7 +28,7 @@ function getDescription(category, name, score) {
     if (category === 'Doa' || category === 'Ibadah') {
         let lancar = '';
         if (numScore >= 86) lancar = 'lancar';
-        else if (numScore >= 71) lancar = 'cukup lancar';
+        else if (numScore >= cThreshold) lancar = 'cukup lancar';
         else lancar = 'kurang lancar';
         return `Ananda ${lancar} dalam menghafalkan ${name}`;
     }
@@ -33,7 +36,7 @@ function getDescription(category, name, score) {
     if (category === 'Tahfizh') {
         let tQuality = '';
         if (numScore >= 86) tQuality = 'baik dan';
-        else if (numScore >= 71) tQuality = 'cukup';
+        else if (numScore >= cThreshold) tQuality = 'cukup';
         else tQuality = 'kurang';
         
         let namaSurat = name;
@@ -118,6 +121,42 @@ async function generatePDF(siswaId) {
     const studentNis = student.nis || student.nisn || '-';
     const kelasNum = studentClass.match(/\d+/)?.[0] || null;
 
+    // Filter records by current class and semester
+    const currentMonth = new Date().getMonth() + 1;
+    const currentSemester = currentMonth >= 7 ? "Ganjil" : "Genap";
+
+    const isApplicableMateri = (materiId) => {
+        const m = materiMap.get(materiId);
+        if (!m) return false;
+        // Gunakan fungsi getClassGrade dari dashboard.js yang sudah diload
+        return getClassGrade(m.kelas) === kelasNum && 
+               String(m.semester).toLowerCase() === currentSemester.toLowerCase();
+    };
+
+    let filteredTahfizh = tahfizhRecords.filter(r => isApplicableMateri(r.materi));
+    let filteredDoa = doaRecords.filter(r => isApplicableMateri(r.materi));
+    let filteredTathbiq = tathbiqRecords.filter(r => isApplicableMateri(r.materi));
+
+    // Sort helper based on materi urutan
+    const sortByMateriUrutan = (records) => {
+        records.sort((a, b) => {
+            const materiA = materiMap.get(a.materi);
+            const materiB = materiMap.get(b.materi);
+            const urutanA = materiA?.urutan ? Number(materiA.urutan) : 999;
+            const urutanB = materiB?.urutan ? Number(materiB.urutan) : 999;
+            
+            if (urutanA !== urutanB) return urutanA - urutanB;
+            
+            const nameA = materiA?.materi || "";
+            const nameB = materiB?.materi || "";
+            return nameA.localeCompare(nameB, "id", { numeric: true, sensitivity: "base" });
+        });
+    };
+
+    sortByMateriUrutan(filteredTahfizh);
+    sortByMateriUrutan(filteredDoa);
+    sortByMateriUrutan(filteredTathbiq);
+
     // --- PDF Generation ---
 
     // Header Logos
@@ -197,7 +236,9 @@ async function generatePDF(siswaId) {
     const bilqolamRecord = bilqolamRecords[0];
     const bilqLetter = String.fromCharCode(sectionCode++);
     let bilqTitle = 'BILQOLAM';
-    if (bilqolamRecord?.jilid) {
+    if (student.inklusif === "Ya") {
+        bilqTitle = 'PENILAIAN KHUSUS PDBK';
+    } else if (bilqolamRecord?.jilid) {
         if (student.status === "Pasca") {
             bilqTitle = bilqolamRecord.jilid.toUpperCase();
         } else {
@@ -215,11 +256,11 @@ async function generatePDF(siswaId) {
             const arabVal = bilqolamRecord.bahasa_arab;
             
             if (student.inklusif === "Ya") {
-                tableBody.push(['1.', "Tadarus Al-Qur'an", { content: tadarusVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tadarusVal), styles: { halign: 'center', fontStyle: 'bold' } }, { content: student.deskripsi_bilqolam || "-", rowSpan: 2, styles: { valign: 'middle', halign: 'justify' } }]);
-                tableBody.push(['2.', 'Bahasa Arab', { content: arabVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(arabVal), styles: { halign: 'center', fontStyle: 'bold' } }]);
+                tableBody.push(['1.', "Tadarus Al-Qur'an", { content: tadarusVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tadarusVal, true), styles: { halign: 'center', fontStyle: 'bold' } }, { content: student.deskripsi_bilqolam || "-", rowSpan: 2, styles: { valign: 'middle', halign: 'left' } }]);
+                tableBody.push(['2.', 'Bahasa Arab', { content: arabVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(arabVal, true), styles: { halign: 'center', fontStyle: 'bold' } }]);
             } else {
-                tableBody.push(['1.', "Tadarus Al-Qur'an", { content: tadarusVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tadarusVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Tadarus', null, tadarusVal)]);
-                tableBody.push(['2.', 'Bahasa Arab', { content: arabVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(arabVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Bahasa Arab', null, arabVal)]);
+                tableBody.push(['1.', "Tadarus Al-Qur'an", { content: tadarusVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tadarusVal, true), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Tadarus', null, tadarusVal, true)]);
+                tableBody.push(['2.', 'Bahasa Arab', { content: arabVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(arabVal, true), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Bahasa Arab', null, arabVal, true)]);
             }
         } else {
             const tajwidVal = bilqolamRecord.tajwid;
@@ -227,9 +268,9 @@ async function generatePDF(siswaId) {
             const laguVal = bilqolamRecord.lagu;
 
             if (student.inklusif === "Ya") {
-                tableBody.push(['1.', 'Tajwid', { content: tajwidVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tajwidVal), styles: { halign: 'center', fontStyle: 'bold' } }, student.deskripsi_bilqolam_tajwid || "-"]);
-                tableBody.push(['2.', 'Fashahah', { content: fashahahVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(fashahahVal), styles: { halign: 'center', fontStyle: 'bold' } }, student.deskripsi_bilqolam_fashahah || "-"]);
-                tableBody.push(['3.', 'Lagu', { content: laguVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(laguVal), styles: { halign: 'center', fontStyle: 'bold' } }, student.deskripsi_bilqolam_lagu || "-"]);
+                tableBody.push(['1.', student.materi_bilqolam_1 || 'Tajwid', { content: tajwidVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tajwidVal, student.status === "Pasca"), styles: { halign: 'center', fontStyle: 'bold' } }, student.deskripsi_bilqolam_tajwid || "-"]);
+                tableBody.push(['2.', student.materi_bilqolam_2 || 'Fashahah', { content: fashahahVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(fashahahVal, student.status === "Pasca"), styles: { halign: 'center', fontStyle: 'bold' } }, student.deskripsi_bilqolam_fashahah || "-"]);
+                tableBody.push(['3.', student.materi_bilqolam_3 || 'Lagu', { content: laguVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(laguVal, student.status === "Pasca"), styles: { halign: 'center', fontStyle: 'bold' } }, student.deskripsi_bilqolam_lagu || "-"]);
             } else {
                 tableBody.push(['1.', 'Tajwid', { content: tajwidVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(tajwidVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Tajwid', null, tajwidVal)]);
                 tableBody.push(['2.', 'Fashahah', { content: fashahahVal ?? '-', styles: { halign: 'center' } }, { content: getPredicate(fashahahVal), styles: { halign: 'center', fontStyle: 'bold' } }, getDescription('Fashahah', null, fashahahVal)]);
@@ -245,19 +286,19 @@ async function generatePDF(siswaId) {
         { content: "TAHFIZH DO'A SEHARI-HARI", colSpan: 4, styles: { fontStyle: 'bold', fillColor: [229, 231, 235] } }
     ]);
 
-    doaRecords.forEach((record, index) => {
+    filteredDoa.forEach((record, index) => {
         const materiName = materiMap.get(record.materi)?.materi || "Materi";
         const score = record.nilai;
         let row = [
             (index + 1) + '.',
             materiName,
             { content: score ?? '-', styles: { halign: 'center' } },
-            { content: getPredicate(score), styles: { halign: 'center', fontStyle: 'bold' } }
+            { content: getPredicate(score, student.status === "Pasca"), styles: { halign: 'center', fontStyle: 'bold' } }
         ];
         if (student.inklusif === "Ya") {
-            row.push({ content: record.deskripsi_inklusi || "-", styles: { valign: 'middle', halign: 'justify' } });
+            row.push({ content: record.deskripsi_inklusi || "-", styles: { valign: 'middle', halign: 'left' } });
         } else {
-            row.push(getDescription('Doa', materiName, score));
+            row.push(getDescription('Doa', materiName, score, student.status === "Pasca"));
         }
         tableBody.push(row);
     });
@@ -276,7 +317,7 @@ async function generatePDF(siswaId) {
     let customDeskripsi = student.deskripsi_tahfizh || "-";
 
     let totalTahfizhRows = 0;
-    tahfizhRecords.forEach((record) => {
+    filteredTahfizh.forEach((record) => {
         const materiData = materiMap.get(record.materi);
         const materiName = materiData?.materi || "Materi";
         if (materiName.toLowerCase().includes("muroja")) totalTahfizhRows++;
@@ -291,7 +332,7 @@ async function generatePDF(siswaId) {
 
     let currentRowCount = 0;
 
-    tahfizhRecords.forEach((record) => {
+    filteredTahfizh.forEach((record) => {
         const materiData = materiMap.get(record.materi);
         const materiName = materiData?.materi || "Materi";
         const isMurojaah = materiName.toLowerCase().includes("muroja");
@@ -329,7 +370,7 @@ async function generatePDF(siswaId) {
 
             criterias.forEach((c) => {
                 const numText = c.hafal || "-";
-                const desc = getDescription('Tahfizh', materiName, c.nilai);
+                const desc = getDescription('Tahfizh', materiName, c.nilai, student.status === "Pasca");
                 let row = [
                     (tIdx++) + '.',
                     `Q.S ${materiName}`,
@@ -353,7 +394,7 @@ async function generatePDF(siswaId) {
                 percentScore = Math.round((hafalAyat / totalAyat) * 100);
             }
             
-            const desc = getDescription('Tahfizh', materiName, percentScore);
+            const desc = getDescription('Tahfizh', materiName, percentScore, student.status === "Pasca");
             let row = [
                 (tIdx++) + '.',
                 `Q.S ${materiName}`,
@@ -378,19 +419,19 @@ async function generatePDF(siswaId) {
         { content: 'DESKRIPSI CAPAIAN', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [229, 231, 235], halign: 'center' } }
     ]);
 
-    tathbiqRecords.forEach((record, index) => {
+    filteredTathbiq.forEach((record, index) => {
         const materiName = materiMap.get(record.materi)?.materi || "Materi";
         const score = record.nilai;
         let row = [
             (index + 1) + '.',
             materiName,
             { content: score ?? '-', styles: { halign: 'center' } },
-            { content: getPredicate(score), styles: { halign: 'center', fontStyle: 'bold' } }
+            { content: getPredicate(score, student.status === "Pasca"), styles: { halign: 'center', fontStyle: 'bold' } }
         ];
         if (student.inklusif === "Ya") {
             row.push({ content: record.deskripsi_inklusi || "-", styles: { valign: 'middle', halign: 'justify' } });
         } else {
-            row.push(getDescription('Ibadah', materiName, score));
+            row.push(getDescription('Ibadah', materiName, score, student.status === "Pasca"));
         }
         tableBody.push(row);
     });
@@ -412,13 +453,15 @@ async function generatePDF(siswaId) {
         body: tableBody,
         theme: 'grid',
         headStyles: { fillColor: [229, 231, 235], textColor: 0, fontStyle: 'bold', lineWidth: 0.1, lineColor: [0, 0, 0] },
-        styles: { fontSize: 9, cellPadding: 1, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: 0, valign: 'middle', font: 'helvetica' },
+        styles: { fontSize: 9, cellPadding: 1.5, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: 0, valign: 'middle', font: 'helvetica' },
         columnStyles: {
             0: { cellWidth: 10, halign: 'center' },
             1: { cellWidth: 45 },
             2: { cellWidth: 20 },
             3: { cellWidth: 20 },
-            4: { cellWidth: 'auto' }
+            4: { cellWidth: 'auto',
+                cellPadding: {top: 0.5, bottom: 0.5, left: 1, right: 1}
+             }
         },
         margin: { left: 14, right: 14, bottom: 20, top: 20 },
         didDrawPage: function (data) {
@@ -453,11 +496,17 @@ async function generatePDF(siswaId) {
         body: [
             [
                 { content: 'Guru Pendidikan Agama Islam dan Budi Pekerti', styles: { fontStyle: 'bold', cellWidth: 50 } },
-                { content: catatanGuruPAI, styles: { cellWidth: 'auto', halign: 'justify' } }
+                { content: catatanGuruPAI, styles: { 
+                    cellWidth: 'auto', halign: 'left', 
+                    cellPadding: {top: 0.5, bottom: 0.5, left: 1, right: 1}
+                } }
             ],
             [
                 { content: "Guru Pengajar Al-Qur'an", styles: { fontStyle: 'bold' } },
-                { content: catatanGuruQuran, styles: { cellWidth: 'auto', halign: 'justify' } }
+                { content: catatanGuruQuran, styles: { 
+                    cellWidth: 'auto', halign: 'left', 
+                    cellPadding: {top: 0.5, bottom: 0.5, left: 1, right: 1}
+                } }
             ]
         ],
         theme: 'grid',
@@ -494,12 +543,12 @@ async function generatePDF(siswaId) {
         ],
         body: [
             ['86 - 100', 'B', 'Apabila ananda baca benar dan lancar, tidak ada salah sama sekali'],
-            ['71 - 85', 'C', 'Apabila ananda baca dan ada kesalahan 3 kali'],
-            ['< 70', 'K', 'Apabila ananda baca dan ada kesalahan lebih dari 3 kali']
+            [student.status === "Pasca" ? '70 - 85' : '71 - 85', 'C', 'Apabila ananda baca dan ada kesalahan 3 kali'],
+            [student.status === "Pasca" ? '< 70' : '< 71', 'K', 'Apabila ananda baca dan ada kesalahan lebih dari 3 kali']
         ],
         theme: 'grid',
         headStyles: { fillColor: [229, 231, 235], textColor: 0, fontStyle: 'bold', lineWidth: 0.1, lineColor: [0, 0, 0], halign: 'center' },
-        styles: { fontSize: 9, cellPadding: 1, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: 0, valign: 'middle' },
+        styles: { fontSize: 9, cellPadding: 1.5, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: 0, valign: 'middle' },
         columnStyles: {
             0: { halign: 'center', cellWidth: 30, fontStyle: 'bold' },
             1: { halign: 'center', cellWidth: 30, fontStyle: 'bold' },

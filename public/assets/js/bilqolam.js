@@ -230,6 +230,10 @@ function openBilqolamModal(siswaId) {
   
   if (siswa.inklusif === "Ya") {
     if (deskripsiContainer) deskripsiContainer.classList.remove("hidden");
+    if (bilqolamForm.elements.materi_bilqolam_1) bilqolamForm.elements.materi_bilqolam_1.value = siswa.materi_bilqolam_1 || "";
+    if (bilqolamForm.elements.materi_bilqolam_2) bilqolamForm.elements.materi_bilqolam_2.value = siswa.materi_bilqolam_2 || "";
+    if (bilqolamForm.elements.materi_bilqolam_3) bilqolamForm.elements.materi_bilqolam_3.value = siswa.materi_bilqolam_3 || "";
+    
     if (bilqolamForm.elements.deskripsi_bilqolam_tajwid) {
       bilqolamForm.elements.deskripsi_bilqolam_tajwid.value = siswa.deskripsi_bilqolam_tajwid || "";
       bilqolamForm.elements.deskripsi_bilqolam_tajwid.required = true;
@@ -244,6 +248,10 @@ function openBilqolamModal(siswaId) {
     }
   } else {
     if (deskripsiContainer) deskripsiContainer.classList.add("hidden");
+    if (bilqolamForm.elements.materi_bilqolam_1) bilqolamForm.elements.materi_bilqolam_1.value = "";
+    if (bilqolamForm.elements.materi_bilqolam_2) bilqolamForm.elements.materi_bilqolam_2.value = "";
+    if (bilqolamForm.elements.materi_bilqolam_3) bilqolamForm.elements.materi_bilqolam_3.value = "";
+    
     if (bilqolamForm.elements.deskripsi_bilqolam_tajwid) {
       bilqolamForm.elements.deskripsi_bilqolam_tajwid.value = "";
       bilqolamForm.elements.deskripsi_bilqolam_tajwid.required = false;
@@ -310,11 +318,17 @@ async function submitBilqolamForm(event) {
       const deskripsiTajwid = bilqolamForm.elements.deskripsi_bilqolam_tajwid?.value || "";
       const deskripsiFashahah = bilqolamForm.elements.deskripsi_bilqolam_fashahah?.value || "";
       const deskripsiLagu = bilqolamForm.elements.deskripsi_bilqolam_lagu?.value || "";
+      const materi1 = bilqolamForm.elements.materi_bilqolam_1?.value || "";
+      const materi2 = bilqolamForm.elements.materi_bilqolam_2?.value || "";
+      const materi3 = bilqolamForm.elements.materi_bilqolam_3?.value || "";
       promises.push(
         pb.collection("siswa").update(siswaId, { 
           deskripsi_bilqolam_tajwid: deskripsiTajwid,
           deskripsi_bilqolam_fashahah: deskripsiFashahah,
-          deskripsi_bilqolam_lagu: deskripsiLagu 
+          deskripsi_bilqolam_lagu: deskripsiLagu,
+          materi_bilqolam_1: materi1,
+          materi_bilqolam_2: materi2,
+          materi_bilqolam_3: materi3
         }, { requestKey: null })
           .then(updatedSiswa => {
              const idx = bilqolamSiswaCache.findIndex(s => s.id === siswaId);
