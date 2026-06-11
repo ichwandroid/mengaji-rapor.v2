@@ -21,6 +21,7 @@
     "animejs": "^3.2.2",
     "express": "^4.19.2",
     "pocketbase": "^0.26.9",
+    "sqlite3": "^6.0.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

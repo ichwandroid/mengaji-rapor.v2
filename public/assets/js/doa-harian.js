@@ -559,10 +559,21 @@ if (inputUploadCSV) {
 
                     if (record) {
                         if (record.nilai !== value && value !== null) {
-                            updates.push({ id: record.id, payload: { nilai: value } });
+                            // Cek jika sudah ada di updates, update nilainya
+                            const existingUpdate = updates.find(u => u.id === record.id);
+                            if (existingUpdate) {
+                                existingUpdate.payload.nilai = value;
+                            } else {
+                                updates.push({ id: record.id, payload: { nilai: value } });
+                            }
                         }
                     } else if (value !== null) {
-                        creates.push({ siswa: siswa.id, materi: materi.id, nilai: value });
+                        const existingCreate = creates.find(c => c.siswa === siswa.id && c.materi === materi.id);
+                        if (existingCreate) {
+                            existingCreate.nilai = value;
+                        } else {
+                            creates.push({ siswa: siswa.id, materi: materi.id, nilai: value });
+                        }
                     }
                 }
             }
@@ -579,11 +590,16 @@ if (inputUploadCSV) {
             alert(`Berhasil mengunggah ${updates.length + creates.length} nilai Do'a Sehari-hari.`);
             
             // Reload data
-            loadDoaHarianData();
+            await reloadNilaiData();
 
         } catch (err) {
-            console.error(err);
-            alert("Terjadi kesalahan saat memproses file CSV.");
+            console.error("Full Error:", err);
+            if (err.response && err.response.data) {
+                console.error("Validation Errors:", err.response.data);
+                alert("Validasi error dari server: " + JSON.stringify(err.response.data));
+            } else {
+                alert("Terjadi kesalahan saat memproses file CSV: " + err.message);
+            }
             setDoaHarianStatus("Gagal memproses CSV.", "error");
         } finally {
             inputUploadCSV.value = "";
