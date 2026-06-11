@@ -526,13 +526,13 @@ if (inputUploadCSV) {
             return;
         }
 
-        setTathbiqIbadahStatus("Memproses file CSV...", "info");
+        setTathbiqHarianStatus("Memproses file CSV...", "info");
         
         try {
             const data = await window.readCSVFile(file);
             if (data.length < 2) {
                 alert("File CSV kosong atau tidak valid.");
-                setTathbiqIbadahStatus("Gagal membaca CSV.", "error");
+                setTathbiqHarianStatus("Gagal membaca CSV.", "error");
                 inputUploadCSV.value = "";
                 return;
             }
@@ -584,7 +584,7 @@ if (inputUploadCSV) {
                 }
             }
 
-            setTathbiqIbadahStatus(`Menyimpan ${updates.length + creates.length} data...`, "info");
+            setTathbiqHarianStatus(`Menyimpan ${updates.length + creates.length} data...`, "info");
 
             for (const item of updates) {
                 await pb.collection("nilai_tathbiq").update(item.id, item.payload);
@@ -596,12 +596,12 @@ if (inputUploadCSV) {
             alert(`Berhasil mengunggah ${updates.length + creates.length} nilai Tathbiq Ibadah.`);
             
             // Reload data
-            loadTathbiqIbadahData();
+            loadInitialData();
 
         } catch (err) {
             console.error(err);
             alert("Terjadi kesalahan saat memproses file CSV.");
-            setTathbiqIbadahStatus("Gagal memproses CSV.", "error");
+            setTathbiqHarianStatus("Gagal memproses CSV.", "error");
         } finally {
             inputUploadCSV.value = "";
         }
