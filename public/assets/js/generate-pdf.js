@@ -106,12 +106,12 @@ async function generatePDF(siswaId) {
     const studentName = student.nama_siswa || student.nama_lengkap || '-';
     
     const classNameMap = {
-        "1A": "1A - Pohon Trembesi", "1B": "1B - Pohon Kulim", "1C": "1C - Pohon Kenanga", "1D": "1D - Pohon Pingku",
-        "2A": "2A - Pohon Sungkai", "2B": "2B - Pohon Randu", "2C": "2C - Pohon Sengon", "2D": "2D - Pohon Mahoni",
-        "3A": "3A - Pohon Saga", "3B": "3B - Pohon Bungur", "3C": "3C - Pohon Eboni", "3D": "3D - Pohon Cantigi",
-        "4A": "4A - Pohon Meranti", "4B": "4B - Pohon Damar", "4C": "4C - Pohon Cendana", "4D": "4D - Pohon Ulin",
-        "5A": "5A - Pohon Mersawa", "5B": "5B - Pohon Pinus", "5C": "5C - Pohon Beringin", "5D": "5D - Pohon Cemara",
-        "6A": "6A - Pohon Jati", "6B": "6B - Pohon Palapi", "6C": "6C - Pohon Bintangur", "6D": "6D - Pohon Mindi"
+        "1A": "IA-Trembesi", "1B": "IB-Kulim", "1C": "IC-Kenanga", "1D": "1D-Pingku",
+        "2A": "IIA-Sungkai", "2B": "IIB-Randu", "2C": "IIC-Sengon", "2D": "IID-Mahoni",
+        "3A": "IIIA-Saga", "3B": "IIIB-Bungur", "3C": "IIIC-Eboni", "3D": "IIID-Cantigi",
+        "4A": "IVA-Meranti", "4B": "IVB-Damar", "4C": "IVC-Cendana", "4D": "IVD-Ulin",
+        "5A": "VA-Mersawa", "5B": "VB-Pinus", "5C": "VC-Beringin", "5D": "VD-Cemara",
+        "6A": "VIA-Jati", "6B": "VIB-Palapi", "6C": "VIC-Bintangur", "6D": "VID-Mindi"
     };
     
     const rawClass = student.kelas || '-';
@@ -119,7 +119,8 @@ async function generatePDF(siswaId) {
     const studentClass = classNameMap[cleanClassKey] || rawClass;
 
     const studentNis = student.nis || student.nisn || '-';
-    const kelasNum = studentClass.match(/\d+/)?.[0] || null;
+    const studentNisn = student.nisn || student.nis || '-';
+    const kelasNum = getClassGrade(rawClass) || cleanClassKey.match(/\d+/)?.[0] || null;
 
     // Filter records by current class and semester
     const currentMonth = new Date().getMonth() + 1;
@@ -212,8 +213,8 @@ async function generatePDF(siswaId) {
     doc.setFont(undefined, 'bold');
     doc.text(`Nama`, 15, yPos);
     doc.text(`: ${studentName}`, 30, yPos);
-    doc.text(`No. Induk`, 130, yPos);
-    doc.text(`: ${studentNis}`, 160, yPos);
+    doc.text(`NISN`, 130, yPos);
+    doc.text(`: ${studentNisn}`, 160, yPos);
 
     yPos += 5;
     doc.setFont(undefined, 'bold');
@@ -469,8 +470,8 @@ async function generatePDF(siswaId) {
             const pageWidth = doc.internal.pageSize.width;
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(`${studentName} | ${cleanClassKey} | 2025/2026`, 14, pageHeight - 10);
-            doc.text(`Semester Genap | Halaman ${data.pageNumber}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
+            doc.text(`${studentClass} | ${studentName} | ${studentNisn}`, 14, pageHeight - 10);
+            doc.text(`Halaman ${data.pageNumber}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
         }
     });
 
@@ -517,8 +518,8 @@ async function generatePDF(siswaId) {
             const pageWidth = doc.internal.pageSize.width;
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(`${studentName} | ${cleanClassKey} | 2025/2026`, 14, pageHeight - 10);
-            doc.text(`Semester Genap | Halaman ${doc.internal.getCurrentPageInfo().pageNumber}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
+            doc.text(`${studentClass} | ${studentName} | ${studentNisn}`, 14, pageHeight - 10);
+            doc.text(`Halaman ${doc.internal.getCurrentPageInfo().pageNumber}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
         }
     });
 
@@ -560,8 +561,8 @@ async function generatePDF(siswaId) {
             const pageWidth = doc.internal.pageSize.width;
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(`${studentName} | ${cleanClassKey} | 2025/2026`, 14, pageHeight - 10);
-            doc.text(`Semester Genap | Halaman ${doc.internal.getCurrentPageInfo().pageNumber}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
+            doc.text(`${studentClass} | ${studentName} | ${studentNisn}`, 14, pageHeight - 10);
+            doc.text(`Halaman ${doc.internal.getCurrentPageInfo().pageNumber}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
         }
     });
 
@@ -614,16 +615,30 @@ async function generatePDF(siswaId) {
     const niyGpq = guruGpq && guruGpq.niy ? guruGpq.niy : '...........................';
 
     doc.setFont(undefined, 'bold');
+    
+    // Guru PAI
     doc.text(paiDisplayName, leftX, yPos, { align: 'center' });
-    doc.text('Andreas Setiyono, S.Pd.Gr., M.Kom', centerX, yPos, { align: 'center' });
+    const paiWidth = doc.getTextWidth(paiDisplayName);
+    doc.setLineWidth(0.3);
+    doc.line(leftX - paiWidth / 2, yPos + 0.8, leftX + paiWidth / 2, yPos + 0.8);
+
+    // Kepala Sekolah
+    const kepsekName = 'Andreas Setiyono, S.Pd.Gr., M.Kom';
+    doc.text(kepsekName, centerX, yPos, { align: 'center' });
+    const kepsekWidth = doc.getTextWidth(kepsekName);
+    doc.line(centerX - kepsekWidth / 2, yPos + 0.8, centerX + kepsekWidth / 2, yPos + 0.8);
+
+    // Guru Al-Qur'an
     doc.text(gpqDisplayName, rightX, yPos, { align: 'center' });
+    const gpqWidth = doc.getTextWidth(gpqDisplayName);
+    doc.line(rightX - gpqWidth / 2, yPos + 0.8, rightX + gpqWidth / 2, yPos + 0.8);
 
     yPos += 4;
     doc.setFont(undefined, 'normal');
     doc.setFontSize(9);
-    doc.text('NIY. ' + niyPai, leftX, yPos, { align: 'center' });
-    doc.text('NIY. 0796071420', centerX, yPos, { align: 'center' });
-    doc.text('NIY. ' + niyGpq, rightX, yPos, { align: 'center' });
+    doc.text(niyPai, leftX, yPos, { align: 'center' });
+    doc.text('0796071420', centerX, yPos, { align: 'center' });
+    doc.text(niyGpq, rightX, yPos, { align: 'center' });
 
     // Open PDF
     const pdfBlob = doc.output('blob');

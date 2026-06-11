@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     // GPQ only allowed to update saran_gpq
                     if (isAdminRole || isGPQRole) {
-                        if (siswa.saran_gpq !== saranGpq && row[3] !== undefined) {
+                        if (row[3] !== undefined && row[3].trim() !== "" && siswa.saran_gpq !== saranGpq) {
                             payload.saran_gpq = saranGpq;
                             isChanged = true;
                         }
@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     // GPAI only allowed to update saran_gpai
                     if (isAdminRole || isGPAIRole) {
-                        if (siswa.saran_gpai !== saranGpai && row[4] !== undefined) {
+                        if (row[4] !== undefined && row[4].trim() !== "" && siswa.saran_gpai !== saranGpai) {
                             payload.saran_gpai = saranGpai;
                             isChanged = true;
                         }
