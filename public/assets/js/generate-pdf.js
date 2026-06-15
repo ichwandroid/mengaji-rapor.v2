@@ -533,7 +533,7 @@ async function generatePDF(siswaId) {
         ],
         theme: 'grid',
         headStyles: { fillColor: [229, 231, 235], textColor: 0, fontStyle: 'bold', lineWidth: 0.1, lineColor: [0, 0, 0], halign: 'center' },
-        styles: { fontSize: 9, cellPadding: 1.5, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: 0, valign: 'middle' },
+        styles: { fontSize: 9, cellPadding: { top: 0.5, right: 1.5, bottom: 0.5, left: 1.5 }, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: 0, valign: 'middle' },
         columnStyles: {
             0: { halign: 'center', cellWidth: 30, fontStyle: 'bold' },
             1: { halign: 'center', cellWidth: 30, fontStyle: 'bold' },
