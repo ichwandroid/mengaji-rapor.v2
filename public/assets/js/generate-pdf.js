@@ -460,7 +460,7 @@ async function generatePDF(siswaId) {
             1: { cellWidth: 45 },
             2: { cellWidth: 20 },
             3: { cellWidth: 20 },
-            4: { cellWidth: 'auto',
+            4: { cellWidth: 87,
                 cellPadding: {top: 0.5, bottom: 0.5, left: 1, right: 1}
              }
         },
