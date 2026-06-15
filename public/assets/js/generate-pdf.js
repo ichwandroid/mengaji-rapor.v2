@@ -454,7 +454,7 @@ async function generatePDF(siswaId) {
         body: tableBody,
         theme: 'grid',
         headStyles: { fillColor: [229, 231, 235], textColor: 0, fontStyle: 'bold', lineWidth: 0.1, lineColor: [0, 0, 0] },
-        styles: { fontSize: 9, cellPadding: 1.5, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: 0, valign: 'middle', font: 'helvetica' },
+        styles: { fontSize: 9, cellPadding: kelasNum === '2' ? { top: 0.5, right: 1.5, bottom: 0.5, left: 1.5 } : 1.5, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: 0, valign: 'middle', font: 'helvetica' },
         columnStyles: {
             0: { cellWidth: 10, halign: 'center' },
             1: { cellWidth: 45 },
