@@ -106,12 +106,12 @@ async function generatePDF(siswaId) {
     const studentName = student.nama_siswa || student.nama_lengkap || '-';
     
     const classNameMap = {
-        "1A": "IA-Trembesi", "1B": "IB-Kulim", "1C": "IC-Kenanga", "1D": "1D-Pingku",
-        "2A": "IIA-Sungkai", "2B": "IIB-Randu", "2C": "IIC-Sengon", "2D": "IID-Mahoni",
-        "3A": "IIIA-Saga", "3B": "IIIB-Bungur", "3C": "IIIC-Eboni", "3D": "IIID-Cantigi",
-        "4A": "IVA-Meranti", "4B": "IVB-Damar", "4C": "IVC-Cendana", "4D": "IVD-Ulin",
-        "5A": "VA-Mersawa", "5B": "VB-Pinus", "5C": "VC-Beringin", "5D": "VD-Cemara",
-        "6A": "VIA-Jati", "6B": "VIB-Palapi", "6C": "VIC-Bintangur", "6D": "VID-Mindi"
+        "1A": "IA - Trembesi", "1B": "IB - Kulim", "1C": "IC - Kenanga", "1D": "1D - Pingku",
+        "2A": "IIA - Sungkai", "2B": "IIB - Randu", "2C": "IIC - Sengon", "2D": "IID - Mahoni",
+        "3A": "IIIA - Saga", "3B": "IIIB - Bungur", "3C": "IIIC - Eboni", "3D": "IIID - Cantigi",
+        "4A": "IVA - Meranti", "4B": "IVB - Damar", "4C": "IVC - Cendana", "4D": "IVD - Ulin",
+        "5A": "VA - Mersawa", "5B": "VB - Pinus", "5C": "VC - Beringin", "5D": "VD - Cemara",
+        "6A": "VIA - Jati", "6B": "VIB - Palapi", "6C": "VIC - Bintangur", "6D": "VID - Mindi"
     };
     
     const rawClass = student.kelas || '-';
