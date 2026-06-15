@@ -212,16 +212,16 @@ async function generatePDF(siswaId) {
     doc.setFontSize(11);
     doc.setFont(undefined, 'bold');
     doc.text(`Nama`, 15, yPos);
-    doc.text(`: ${studentName}`, 30, yPos);
+    doc.text(` : ${studentName}`, 30, yPos);
     doc.text(`NISN`, 130, yPos);
-    doc.text(`: ${studentNisn}`, 160, yPos);
+    doc.text(` : ${studentNisn}`, 160, yPos);
 
     yPos += 5;
     doc.setFont(undefined, 'bold');
     doc.text(`Kelas`, 15, yPos);
-    doc.text(`: ${studentClass}`, 30, yPos);
-    doc.text(`Tahun Ajaran`, 130, yPos);
-    doc.text(`: 2025/2026 (Genap)`, 160, yPos);
+    doc.text(` : ${studentClass}`, 30, yPos);
+    doc.text(`Tahun Pelajaran`, 130, yPos);
+    doc.text(` : 2025/2026 (Genap)`, 160, yPos);
 
     yPos += 5;
     doc.setFontSize(9);
@@ -464,15 +464,7 @@ async function generatePDF(siswaId) {
                 cellPadding: {top: 0.5, bottom: 0.5, left: 1, right: 1}
              }
         },
-        margin: { left: 14, right: 14, bottom: 20, top: 20 },
-        didDrawPage: function (data) {
-            const pageHeight = doc.internal.pageSize.height;
-            const pageWidth = doc.internal.pageSize.width;
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
-            doc.text(`${studentClass} | ${studentName} | ${studentNisn}`, 14, pageHeight - 10);
-            doc.text(`Halaman ${data.pageNumber}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
-        }
+        margin: { left: 14, right: 14, bottom: 20, top: 20 }
     });
 
     // --- II. CATATAN ---
@@ -512,15 +504,7 @@ async function generatePDF(siswaId) {
         ],
         theme: 'grid',
         styles: { fontSize: 9, cellPaddingRight: 1.9, cellPaddingLeft: 1, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: 0, valign: 'middle' },
-        margin: { left: 14, right: 14, bottom: 20, top: 20 },
-        didDrawPage: function (data) {
-            const pageHeight = doc.internal.pageSize.height;
-            const pageWidth = doc.internal.pageSize.width;
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
-            doc.text(`${studentClass} | ${studentName} | ${studentNisn}`, 14, pageHeight - 10);
-            doc.text(`Halaman ${doc.internal.getCurrentPageInfo().pageNumber}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
-        }
+        margin: { left: 14, right: 14, bottom: 20, top: 20 }
     });
 
     // --- III. KONVERSI NILAI ---
@@ -555,15 +539,7 @@ async function generatePDF(siswaId) {
             1: { halign: 'center', cellWidth: 30, fontStyle: 'bold' },
             2: { cellWidth: 'auto' }
         },
-        margin: { left: 14, right: 14, bottom: 20, top: 20 },
-        didDrawPage: function (data) {
-            const pageHeight = doc.internal.pageSize.height;
-            const pageWidth = doc.internal.pageSize.width;
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
-            doc.text(`${studentClass} | ${studentName} | ${studentNisn}`, 14, pageHeight - 10);
-            doc.text(`Halaman ${doc.internal.getCurrentPageInfo().pageNumber}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
-        }
+        margin: { left: 14, right: 14, bottom: 20, top: 20 }
     });
 
     // --- Signatures ---
@@ -636,9 +612,21 @@ async function generatePDF(siswaId) {
     yPos += 4;
     doc.setFont(undefined, 'normal');
     doc.setFontSize(9);
-    doc.text(niyPai, leftX, yPos, { align: 'center' });
-    doc.text('0796071420', centerX, yPos, { align: 'center' });
-    doc.text(niyGpq, rightX, yPos, { align: 'center' });
+    doc.text(`NIY. ${niyPai}`, leftX, yPos, { align: 'center' });
+    doc.text('NIY. 0796071420', centerX, yPos, { align: 'center' });
+    doc.text(`NIY. ${niyGpq}`, rightX, yPos, { align: 'center' });
+
+    // --- Global Footer ---
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        const pageHeight = doc.internal.pageSize.height;
+        const pageWidth = doc.internal.pageSize.width;
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        doc.text(`${studentClass} | ${studentName} | ${studentNisn}`, 14, pageHeight - 10);
+        doc.text(`Halaman ${i}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
+    }
 
     // Open PDF
     const pdfBlob = doc.output('blob');
