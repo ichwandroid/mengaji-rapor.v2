@@ -1,103 +1,119 @@
-# Panduan Instalasi Rapor Mengaji SD Anak Saleh di Server (Windows 10)
+# Panduan Menjalankan Aplikasi Rapor Mengaji SD Anak Saleh
 
-Dokumen ini berisi panduan lengkap langkah demi langkah untuk menginstal dan menjalankan aplikasi **Rapor Mengaji SD Anak Saleh** di sebuah komputer/server yang menggunakan sistem operasi **Windows 10**.
+Aplikasi ini menggunakan **Node.js (Express)** sebagai Web Server/Frontend dan **PocketBase** sebagai Database & Backend.
 
 ---
 
 ## 1. Persiapan Sistem (Prasyarat)
 
-Sebelum memindahkan aplikasi ke Windows, pastikan Anda telah menginstal prasyarat berikut:
-
-1. **Node.js**:
-   - Download versi LTS (18 atau 20) untuk Windows dari [https://nodejs.org/](https://nodejs.org/).
-   - Lakukan instalasi seperti biasa (tinggal klik *Next* sampai selesai).
-2. **PM2** (Untuk menjalankan aplikasi di *background* agar tidak perlu membuka jendela terminal/CMD terus-menerus):
-   - Buka **Command Prompt (CMD)** atau **PowerShell** sebagai Administrator (*Run as Administrator*).
-   - Ketik perintah berikut dan tekan Enter:
-     ```cmd
-     npm install -g pm2 pm2-windows-startup
-     ```
-   - Setelah selesai, buat agar PM2 otomatis menyala setiap Windows dihidupkan dengan perintah:
-     ```cmd
-     pm2-startup install
-     ```
+Sebelum menjalankan aplikasi, pastikan Anda telah menginstal:
+1. **Node.js** (Versi LTS 18 atau 20 direkomendasikan): [https://nodejs.org/](https://nodejs.org/)
+2. File database **PocketBase** untuk Windows (`pocketbase.exe`) sudah berada di dalam folder `database/`. Jika belum ada:
+   - Download PocketBase versi Windows (AMD64) dari [PocketBase Releases](https://github.com/pocketbase/pocketbase/releases).
+   - Ekstrak dan pindahkan `pocketbase.exe` ke folder `database/`.
 
 ---
 
-## 2. Pindahkan dan Konfigurasi Aplikasi
+## 2. Instalasi Dependensi
 
-1. *Copy* seluruh folder proyek aplikasi ini (`mengaji-rapor.v2`) ke dalam komputer Windows Anda (misal diletakkan di `C:\RaporMengaji`).
-2. Buka **Command Prompt**, lalu masuk ke folder tersebut:
-   ```cmd
-   cd C:\RaporMengaji
-   ```
-3. Install seluruh dependensi yang dibutuhkan:
-   ```cmd
-   npm install
-   ```
+Buka terminal (Command Prompt, PowerShell, atau Git Bash) di folder proyek ini, lalu jalankan perintah berikut untuk menginstal seluruh dependensi:
+
+```bash
+npm install
+```
 
 ---
 
-## 3. Konfigurasi Database (PocketBase untuk Windows)
+## 3. Cara Menjalankan Aplikasi Secara Lokal (Development)
 
-Aplikasi ini menggunakan PocketBase sebagai databasenya. Karena Anda men-develop aplikasi ini di Mac, file `pocketbase` bawaannya tidak bisa dieksekusi di Windows. Anda harus menggantinya dengan versi `.exe` khusus Windows.
+Untuk menjalankan aplikasi secara lokal di komputer Anda, Anda perlu membuka **dua jendela terminal** (satu untuk Database, satu untuk Web Server):
 
-1. Buka folder `database` yang ada di dalam `C:\RaporMengaji`.
-2. Hapus file bernama `pocketbase` (file versi Mac).
-3. Download PocketBase untuk Windows (versi AMD64) dari link resmi berikut:
-   [pocketbase_0.22.9_windows_amd64.zip](https://github.com/pocketbase/pocketbase/releases/download/v0.22.9/pocketbase_0.22.9_windows_amd64.zip) (Pilih versi rilis terbaru di web pocketbase.io jika diperlukan).
-4. Ekstrak file zip yang baru saja di-download. Anda akan mendapatkan file bernama `pocketbase.exe`.
-5. Pindahkan/copy file `pocketbase.exe` tersebut ke dalam folder `database` di komputer Windows Anda (sehingga lokasinya menjadi `C:\RaporMengaji\database\pocketbase.exe`).
+### Langkah 1: Jalankan Database (PocketBase)
+Buka terminal pertama di folder proyek, lalu jalankan:
+```bash
+npm run pocketbase
+```
+*Database akan berjalan di `http://127.0.0.1:8090`. Anda dapat mengakses Dashboard Admin PocketBase di `http://127.0.0.1:8090/_/`.*
 
-> **Catatan:** Data aplikasi Anda tersimpan aman di dalam folder `database\pb_data`. Jangan pernah menghapus folder `pb_data` ini.
+### Langkah 2: Jalankan Web Server
+Buka terminal kedua di folder proyek, lalu jalankan:
+```bash
+npm run dev
+```
+*Server web akan berjalan di `http://localhost:3000` (atau port terdekat seperti `3001` jika port 3000 sedang digunakan).*
+
+### Langkah 3: Mengompilasi CSS (Opsional / Development)
+Jika Anda melakukan perubahan pada file styling Tailwind CSS di folder `src/`, jalankan perintah berikut di terminal ketiga untuk memantau perubahan secara real-time:
+```bash
+npm run watch:css
+```
 
 ---
 
-## 4. Menjalankan Aplikasi
+## 4. Panduan Menjalankan di Server Windows 10 (Produksi - Background Service)
 
-Sekarang kita akan menyalakan Database dan Web Server agar berjalan otomatis di *background* menggunakan PM2.
+Jika Anda ingin menjalankan aplikasi ini di komputer server sekolah secara terus-menerus di background (tidak akan mati meskipun terminal ditutup, dan otomatis menyala saat PC di-restart), gunakan **PM2**.
 
-Pastikan posisi Command Prompt Anda masih berada di `C:\RaporMengaji`, kemudian jalankan dua perintah berikut satu per satu:
+### Langkah 1: Install PM2 secara Global
+Buka terminal sebagai Administrator (*Run as Administrator*), lalu jalankan:
+```cmd
+npm install -g pm2 pm2-windows-startup
+pm2-startup install
+```
 
+### Langkah 2: Daftarkan Layanan ke PM2
+Pastikan terminal berada di folder proyek, lalu jalankan kedua perintah berikut:
 1. **Nyalakan Database (PocketBase):**
    ```cmd
-   pm2 start database\pocketbase.exe --name rapor-database -- serve --dir database\pb_data --http=127.0.0.1:8090
+   pm2 start database\pocketbase.exe --name rapor-database -- serve --dir database\pb_data --http=0.0.0.0:8090
    ```
 2. **Nyalakan Web Server (Rapor):**
    ```cmd
    pm2 start server.js --name rapor-web
    ```
-3. **Simpan agar otomatis menyala saat PC di-restart:**
+3. **Simpan Konfigurasi PM2:**
    ```cmd
    pm2 save
    ```
 
-*(Anda bisa mengecek statusnya berjalan dengan baik atau tidak dengan mengetik: `pm2 status`)*
+*Untuk melihat status layanan, jalankan perintah: `pm2 status`*
+
+### Langkah 3: Buka Port di Windows Firewall (Penting)
+Agar laptop/perangkat lain dalam satu jaringan WiFi sekolah dapat mengakses aplikasi:
+1. Buka Start Menu, cari **Windows Defender Firewall with Advanced Security**.
+2. Klik **Inbound Rules** di panel sebelah kiri -> **New Rule...** di panel kanan.
+3. Pilih **Port** -> Next.
+4. Pilih **TCP**, isi *Specific local ports* dengan `3000`, lalu Next.
+5. Pilih **Allow the connection** -> Next.
+6. Centang Domain, Private, Public -> Next.
+7. Beri nama (misal: `Rapor Mengaji Web`), klik **Finish**.
 
 ---
 
-## 5. Konfigurasi Jaringan & Firewall (Sangat Penting)
+## 5. Cara Mengakses Aplikasi
 
-Aplikasi web sekarang berjalan di komputer server Windows Anda pada port `3000`. Jika Anda ingin guru-guru atau perangkat lain di dalam satu jaringan WiFi/LAN sekolah bisa mengaksesnya, Anda wajib membuka gerbang port `3000` di pengaturan Firewall Windows:
-
-1. Buka Start Menu, cari dan buka **Windows Defender Firewall with Advanced Security**.
-2. Klik **Inbound Rules** di panel sebelah kiri.
-3. Di panel sebelah kanan, klik **New Rule...**
-4. Pilih **Port**, lalu klik Next.
-5. Pilih **TCP**, dan isi *Specific local ports* dengan angka: `3000`, klik Next.
-6. Pilih **Allow the connection**, klik Next.
-7. Centang ketiganya (Domain, Private, Public), klik Next.
-8. Beri nama aturan ini, misal `Rapor Mengaji Web`, lalu klik **Finish**.
-
-*(Ulangi langkah yang sama untuk membuka port `8090` jika Anda ingin membuka akses admin database ke jaringan luar, namun disarankan **TIDAK PERLU** dibuka agar database hanya bisa diatur langsung dari dalam server demi keamanan).*
+- **Dari Komputer Server/Lokal:**
+  - Aplikasi Web: [http://localhost:3000](http://localhost:3000)
+  - Admin Database: [http://localhost:8090/_/](http://localhost:8090/_/)
+- **Dari Laptop/HP Guru (Jaringan WiFi/LAN yang sama):**
+  - Akses menggunakan IP komputer server, contoh: `http://192.168.1.10:3000`
+  *(Cek IP server dengan mengetik `ipconfig` di terminal server, cari bagian `IPv4 Address`).*
 
 ---
 
-## 6. Selesai! Mengakses Aplikasi
+## 6. Daftar Perintah Script (package.json)
 
-- Jika Anda membuka dari **komputer server (Windows 10) itu sendiri**, Anda bisa mengakses:
-  - Aplikasi Rapor: `http://localhost:3000`
-  - Admin Database: `http://localhost:8090/_/`
-- Jika guru membuka dari **laptop/komputer lain** (yang terhubung ke WiFi/jaringan yang sama dengan server), mereka harus mengetikkan IP Address komputer server Anda, contoh: `http://192.168.1.10:3000`.
-
-*(Cara mengecek IP Address server: Buka Command Prompt di server, ketik `ipconfig`, lalu lihat bagian IPv4 Address).*
+| Perintah | Deskripsi |
+| --- | --- |
+| `npm run dev` | Menjalankan web server utama (`node server.js`) |
+| `npm run pocketbase` | Menjalankan database PocketBase lokal |
+| `npm run build:css` | Build / minify file CSS Tailwind ke folder public |
+| `npm run watch:css` | Watcher Tailwind CSS untuk memantau perubahan style |
+| `npm run setup:user-access` | Inisialisasi konfigurasi hak akses user di PocketBase |
+| `npm run setup:user-role` | Menambahkan field role pada user PocketBase |
+| `npm run setup:materi` | Inisialisasi koleksi materi di PocketBase |
+| `npm run setup:siswa` | Inisialisasi koleksi siswa di PocketBase |
+| `npm run setup:bilqolam` | Inisialisasi koleksi penilaian bilqolam |
+| `npm run setup:nilai-doa` | Inisialisasi koleksi penilaian doa harian |
+| `npm run setup:nilai-tathbiq` | Inisialisasi koleksi penilaian tathbiq ibadah |
+| `npm run setup:nilai-tahfizh` | Inisialisasi koleksi penilaian tahfizh quran |

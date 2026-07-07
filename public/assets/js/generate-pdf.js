@@ -77,27 +77,45 @@ window.viewRapor = async (siswaId, btnElement) => {
 };
 
 async function generatePDF(siswaId) {
+    const doc = await window.generatePDFDocument(siswaId);
+    const pdfBlob = doc.output('blob');
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    window.open(pdfUrl, '_blank');
+}
+
+window.generatePDFDocument = async (siswaId, preloadedData = null) => {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    const doc = new jsPDF({ compress: true });
 
     // Fetch Data
-    const [
-        student,
-        materiList,
-        tahfizhRecords,
-        bilqolamRecords,
-        doaRecords,
-        tathbiqRecords,
-        teachersList
-    ] = await Promise.all([
-        pb.collection("siswa").getOne(siswaId),
-        pb.collection("materi").getFullList({ sort: "category,materi" }),
-        pb.collection("nilai_tahfizh").getFullList({ filter: `siswa="${siswaId}"` }),
-        pb.collection("bilqolam").getFullList({ filter: `siswa="${siswaId}"` }),
-        pb.collection("nilai_doa").getFullList({ filter: `siswa="${siswaId}"` }),
-        pb.collection("nilai_tathbiq").getFullList({ filter: `siswa="${siswaId}"` }),
-        pb.collection("users").getFullList().catch(() => []) 
-    ]);
+    let student, materiList, tahfizhRecords, bilqolamRecords, doaRecords, tathbiqRecords, teachersList;
+    if (preloadedData) {
+        student = preloadedData.student;
+        materiList = preloadedData.materiList;
+        tahfizhRecords = preloadedData.tahfizhRecords;
+        bilqolamRecords = preloadedData.bilqolamRecords;
+        doaRecords = preloadedData.doaRecords;
+        tathbiqRecords = preloadedData.tathbiqRecords;
+        teachersList = preloadedData.teachersList;
+    } else {
+        [
+            student,
+            materiList,
+            tahfizhRecords,
+            bilqolamRecords,
+            doaRecords,
+            tathbiqRecords,
+            teachersList
+        ] = await Promise.all([
+            pb.collection("siswa").getOne(siswaId),
+            pb.collection("materi").getFullList({ sort: "category,materi" }),
+            pb.collection("nilai_tahfizh").getFullList({ filter: `siswa="${siswaId}"` }),
+            pb.collection("bilqolam").getFullList({ filter: `siswa="${siswaId}"` }),
+            pb.collection("nilai_doa").getFullList({ filter: `siswa="${siswaId}"` }),
+            pb.collection("nilai_tathbiq").getFullList({ filter: `siswa="${siswaId}"` }),
+            pb.collection("users").getFullList().catch(() => []) 
+        ]);
+    }
 
     const materiMap = new Map();
     materiList.forEach((m) => materiMap.set(m.id, m));
@@ -628,8 +646,5 @@ async function generatePDF(siswaId) {
         doc.text(`Halaman ${i}`, pageWidth - 14, pageHeight - 10, { align: 'right' });
     }
 
-    // Open PDF
-    const pdfBlob = doc.output('blob');
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-    window.open(pdfUrl, '_blank');
-}
+    return doc;
+};
